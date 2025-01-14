@@ -103,9 +103,21 @@
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a href="{{ url('/penjualan') }}" class="nav-link {{ $activeMenu == 'penjualan' ? 'active' : '' }}">
-                        <i class="nav-icon fas fa-cash-register"></i>
-                        <p>Transaksi Penjualan</p>
+                    <a href="{{ url('/permohonan') }}" class="nav-link {{ $activeMenu == 'permohonan' ? 'active' : '' }}">
+                        <i class="nav-icon fas fa-envelope"></i>
+                        <p>Pengajuan Permohonan</p>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="{{ url('/pertanyaan') }}" class="nav-link {{ $activeMenu == 'pertanyaan' ? 'active' : '' }}">
+                        <i class="nav-icon fas fa-comments"></i>
+                        <p>Pengajuan Pertanyaan</p>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="{{ url('/riwayat') }}" class="nav-link {{ $activeMenu == 'riwayat' ? 'active' : '' }}">
+                        <i class="nav-icon fas fa-scroll"></i>
+                        <p>Riwayat</p>
                     </a>
                 </li>
             @endif
