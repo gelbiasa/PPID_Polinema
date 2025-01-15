@@ -63,7 +63,7 @@
             }).then((result) => {
                 if (result.isConfirmed) {
                     // Jika user mengkonfirmasi, lakukan aksi "tandai telah dibaca"
-                    fetch(`{{ url('notifikasi/tandai-dibaca') }}/${id}`, {
+                    fetch(`{{ url('notifAdmin/tandai-dibaca') }}/${id}`, {
                         method: 'POST',
                         headers: {
                             'X-CSRF-TOKEN': '{{ csrf_token() }}',
@@ -110,7 +110,7 @@
             }).then((result) => {
                 if (result.isConfirmed) {
                     // Jika user mengkonfirmasi, lakukan aksi "hapus notifikasi"
-                    fetch(`{{ url('notifikasi/hapus') }}/${id}`, {
+                    fetch(`{{ url('notifAdmin/hapus') }}/${id}`, {
                         method: 'DELETE',
                         headers: {
                             'X-CSRF-TOKEN': '{{ csrf_token() }}',

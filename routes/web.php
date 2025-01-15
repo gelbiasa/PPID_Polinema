@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\DaftarPermohonanController;
 use App\Http\Controllers\DashboardAdminController;
 use App\Http\Controllers\DashboardMPUController;
 use App\Http\Controllers\DashboardRespondenController;
@@ -80,7 +81,20 @@ Route::middleware('auth')->group(function () {
         Route::get('/', [NotifikasiControllerADM::class, 'index']);
         Route::get('/notif_permohonan', [NotifikasiControllerADM::class, 'notifikasiPermohonan']);
         Route::get('/notif_pertanyaan', [NotifikasiControllerADM::class, 'notifikasiPertanyaan']);
-        Route::post('/tandai-dibaca/{id}', [NotifikasiControllerADM::class, 'tandaiDibaca'])->name('notifikasi.tandaiDibaca');
-        Route::delete('/hapus/{id}', [NotifikasiControllerADM::class, 'hapusNotifikasi'])->name('notifikasi.hapus');
+        Route::post('/tandai-dibaca/{id}', [NotifikasiControllerADM::class, 'tandaiDibaca'])->name('notifAdmin.tandaiDibaca');
+        Route::delete('/hapus/{id}', [NotifikasiControllerADM::class, 'hapusNotifikasi'])->name('notifAdmin.hapus');
+    });
+
+    Route::group(['prefix' => 'daftarPermohonan', 'middleware' => ['authorize:VFR']], function () {
+        Route::get('/', [DaftarPermohonanController::class, 'index']);
+        // Akademik
+        Route::get('/daftarAkademik', [DaftarPermohonanController::class, 'daftarAkademik']);
+        Route::post('/storeAkademik', [PermohonanController::class, 'storeFormAkademik']);
+        // Layanan
+        Route::get('/formLayanan', [PermohonanController::class, 'formLayanan']);
+        Route::post('/storeLayanan', [PermohonanController::class, 'storeFormLayanan']);
+        // Teknis
+        Route::get('/formTeknis', [PermohonanController::class, 'formTeknis']);
+        Route::post('/storeTeknis', [PermohonanController::class, 'storeFormTeknis']);
     });
 });

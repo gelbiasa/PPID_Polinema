@@ -93,13 +93,13 @@ $totalNotifikasiADM = NotifikasiAdminModel::where('sudah_dibaca', null)->count()
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a href="{{ url('/daftar_permohonan') }}" class="nav-link {{ $activeMenu == 'daftar_permohonan' ? 'active' : '' }}">
+                    <a href="{{ url('/daftarPermohonan') }}" class="nav-link {{ $activeMenu == 'daftar_permohonan' ? 'active' : '' }}">
                         <i class="nav-icon fas fa-clipboard-list"></i>
                         <p>Daftar Permohonan</p>
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a href="{{ url('/daftar_pertanyaan') }}" class="nav-link {{ $activeMenu == 'daftar_pertanyaan' ? 'active' : '' }}">
+                    <a href="{{ url('/daftarPertanyaan') }}" class="nav-link {{ $activeMenu == 'daftar_pertanyaan' ? 'active' : '' }}">
                         <i class="nav-icon fas fa-question-circle"></i>
                         <p>Daftar Pertanyaan</p>
                     </a>
