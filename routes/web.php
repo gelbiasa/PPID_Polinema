@@ -5,9 +5,11 @@ use App\Http\Controllers\DashboardAdminController;
 use App\Http\Controllers\DashboardMPUController;
 use App\Http\Controllers\DashboardRespondenController;
 use App\Http\Controllers\DashboardVerifikatorController;
+use App\Http\Controllers\NotifikasiControllerADM;
+use App\Http\Controllers\NotifikasiControllerVFR;
 use App\Http\Controllers\PermohonanController;
+use App\Http\Controllers\PertanyaanController;
 use App\Http\Controllers\ProfileController;
-use App\Http\Controllers\WelcomeController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -31,7 +33,7 @@ Route::get('logout', [AuthController::class, 'logout'])->middleware('auth');
 Route::middleware('auth')->group(function () {
     Route::get('/dashboardAdmin', [DashboardAdminController::class, 'index'])->middleware('authorize:ADM');
     Route::get('/dashboardMPU', [DashboardMPUController::class, 'index'])->middleware('authorize:MPU');
-    Route::get('/dashboardVerifikator', [DashboardVerifikatorController::class, 'index'])->middleware('authorize:VFR');
+    Route::get('/dashboardVFR', [DashboardVerifikatorController::class, 'index'])->middleware('authorize:VFR');
     Route::get('/dashboardResponden', [DashboardRespondenController::class, 'index'])->middleware('authorize:RPN');
 
     Route::group(['prefix' => 'profile'], function () {
@@ -51,5 +53,34 @@ Route::middleware('auth')->group(function () {
         // Teknis
         Route::get('/formTeknis', [PermohonanController::class, 'formTeknis']);
         Route::post('/storeTeknis', [PermohonanController::class, 'storeFormTeknis']);
+    });
+
+    Route::group(['prefix' => 'pertanyaan', 'middleware' => ['authorize:RPN']], function () {
+        Route::get('/', [PertanyaanController::class, 'index']);
+        // Akademik
+        Route::get('/formAkademik', [PertanyaanController::class, 'formAkademik']);
+        Route::post('/storeAkademik', [PertanyaanController::class, 'storeFormAkademik']);
+        // Layanan
+        Route::get('/formLayanan', [PertanyaanController::class, 'formLayanan']);
+        Route::post('/storeLayanan', [PertanyaanController::class, 'storeFormLayanan']);
+        // Teknis
+        Route::get('/formTeknis', [PertanyaanController::class, 'formTeknis']);
+        Route::post('/storeTeknis', [PertanyaanController::class, 'storeFormTeknis']);
+    });
+
+    Route::group(['prefix' => 'notifikasi', 'middleware' => ['authorize:VFR']], function () {
+        Route::get('/', [NotifikasiControllerVFR::class, 'index']);
+        Route::get('/notif_permohonan', [NotifikasiControllerVFR::class, 'notifikasiPermohonan']);
+        Route::get('/notif_pertanyaan', [NotifikasiControllerVFR::class, 'notifikasiPertanyaan']);
+        Route::post('/tandai-dibaca/{id}', [NotifikasiControllerVFR::class, 'tandaiDibaca'])->name('notifikasi.tandaiDibaca');
+        Route::delete('/hapus/{id}', [NotifikasiControllerVFR::class, 'hapusNotifikasi'])->name('notifikasi.hapus');
+    });
+
+    Route::group(['prefix' => 'notifAdmin', 'middleware' => ['authorize:ADM']], function () {
+        Route::get('/', [NotifikasiControllerADM::class, 'index']);
+        Route::get('/notif_permohonan', [NotifikasiControllerADM::class, 'notifikasiPermohonan']);
+        Route::get('/notif_pertanyaan', [NotifikasiControllerADM::class, 'notifikasiPertanyaan']);
+        Route::post('/tandai-dibaca/{id}', [NotifikasiControllerADM::class, 'tandaiDibaca'])->name('notifikasi.tandaiDibaca');
+        Route::delete('/hapus/{id}', [NotifikasiControllerADM::class, 'hapusNotifikasi'])->name('notifikasi.hapus');
     });
 });

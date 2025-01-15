@@ -2,8 +2,13 @@
 
 @section('content')
 <div class="card">
-    <div class="card-header">
-        <h3 class="card-title">Form Permohonan Teknis</h3>
+    <div class="card-header d-flex align-items-center justify-content-between">
+        <div>
+            <a href="{{ url('permohonan') }}" class="btn btn-secondary">
+                <i class="fa fa-arrow-left"></i> Kembali
+            </a>
+        </div>
+        <h3 class="card-title"><strong> Permohonan Teknis </strong></h3>
     </div>
     <div class="card-body">
         <form action="{{ url('permohonan/storeTeknis') }}" method="POST" enctype="multipart/form-data">

@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\NotifikasiAdminModel;
+use App\Models\NotifikasiVerifikatorModel;
 use App\Models\PermohonanModel;
 use App\Models\UserModel;
 use Illuminate\Http\Request;
@@ -62,7 +64,7 @@ class PermohonanController extends Controller
         $dokumenPath = $request->file('dokumen_pendukung')->store('dokumen_pendukung', 'public');
 
         // Simpan data permohonan ke database
-        PermohonanModel::create([
+        $permohonan = PermohonanModel::create([
             'user_id' => auth()->id(),
             'kategori' => $request->kategori,
             'status_pemohon' => $request->status_pemohon,
@@ -72,12 +74,35 @@ class PermohonanController extends Controller
             'status' => 'Diproses',
             'alasan_penolakan' => null,
             'deleted_at' => null,
-        ]);  
+        ]);
+
+        // Simpan notifikasi ke database
+        NotifikasiVerifikatorModel::create([
+            'user_id' => auth()->id(),
+            'kategori' => 'permohonan',
+            'permohonan_id' => $permohonan->permohonan_id,
+            'pertanyaan_id' => null,
+            'pesan' => auth()->user()->nama . ' Mengajukan Permohonan ' . $request->kategori,
+            'sudah_dibaca' => null,
+            'created_at' => now(),
+            'updated_at' => now(),
+            'deleted_at' => null,
+        ]);
+
+        NotifikasiAdminModel::create([
+            'user_id' => auth()->id(),
+            'kategori' => 'permohonan',
+            'permohonan_id' => $permohonan->permohonan_id,
+            'pertanyaan_id' => null,
+            'pesan' => auth()->user()->nama . ' Mengajukan Permohonan ' . $request->kategori,
+            'sudah_dibaca' => null,
+            'created_at' => now(),
+            'updated_at' => now(),
+            'deleted_at' => null,
+        ]);
 
         return redirect('/permohonan')->with('success', 'Permohonan Akademik berhasil diajukan.');
     }
-
-
 
     // Form Layanan
     public function formLayanan()
@@ -113,7 +138,7 @@ class PermohonanController extends Controller
         // Simpan file dokumen pendukung
         $dokumenPath = $request->file('dokumen_pendukung')->store('dokumen_pendukung', 'public');
 
-        PermohonanModel::create([
+        $permohonan = PermohonanModel::create([
             'user_id' => auth()->id(), // Mengambil user_id dari user yang sedang login
             'kategori' => $request->kategori,
             'status_pemohon' => $request->status_pemohon,
@@ -124,6 +149,32 @@ class PermohonanController extends Controller
             'alasan_penolakan' => null,
             'deleted_at' => null,
         ]);
+
+        // Simpan notifikasi ke database
+        NotifikasiVerifikatorModel::create([
+            'user_id' => auth()->id(),
+            'kategori' => 'permohonan',
+            'permohonan_id' => $permohonan->permohonan_id,
+            'pertanyaan_id' => null,
+            'pesan' => auth()->user()->nama . ' Mengajukan Permohonan ' . $request->kategori,
+            'sudah_dibaca' => null,
+            'created_at' => now(),
+            'updated_at' => now(),
+            'deleted_at' => null,
+        ]);
+
+        NotifikasiAdminModel::create([
+            'user_id' => auth()->id(),
+            'kategori' => 'permohonan',
+            'permohonan_id' => $permohonan->permohonan_id,
+            'pertanyaan_id' => null,
+            'pesan' => auth()->user()->nama . ' Mengajukan Permohonan ' . $request->kategori,
+            'sudah_dibaca' => null,
+            'created_at' => now(),
+            'updated_at' => now(),
+            'deleted_at' => null,
+        ]);
+
         // Proses penyimpanan data Layanan
         return redirect('/permohonan')->with('success', 'Permohonan Layanan berhasil diajukan.');
     }
@@ -162,7 +213,7 @@ class PermohonanController extends Controller
         // Simpan file dokumen pendukung
         $dokumenPath = $request->file('dokumen_pendukung')->store('dokumen_pendukung', 'public');
 
-        PermohonanModel::create([
+        $permohonan = PermohonanModel::create([
             'user_id' => auth()->id(), // Mengambil user_id dari user yang sedang login
             'kategori' => $request->kategori,
             'status_pemohon' => $request->status_pemohon,
@@ -173,6 +224,32 @@ class PermohonanController extends Controller
             'alasan_penolakan' => null,
             'deleted_at' => null,
         ]);
+
+        // Simpan notifikasi ke database
+        NotifikasiVerifikatorModel::create([
+            'user_id' => auth()->id(),
+            'kategori' => 'permohonan',
+            'permohonan_id' => $permohonan->permohonan_id,
+            'pertanyaan_id' => null,
+            'pesan' => auth()->user()->nama . ' Mengajukan Permohonan ' . $request->kategori,
+            'sudah_dibaca' => null,
+            'created_at' => now(),
+            'updated_at' => now(),
+            'deleted_at' => null,
+        ]);
+
+        NotifikasiAdminModel::create([
+            'user_id' => auth()->id(),
+            'kategori' => 'permohonan',
+            'permohonan_id' => $permohonan->permohonan_id,
+            'pertanyaan_id' => null,
+            'pesan' => auth()->user()->nama . ' Mengajukan Permohonan ' . $request->kategori,
+            'sudah_dibaca' => null,
+            'created_at' => now(),
+            'updated_at' => now(),
+            'deleted_at' => null,
+        ]);
+
         // Proses penyimpanan data Teknis
         return redirect('/permohonan')->with('success', 'Permohonan Teknis berhasil diajukan.');
     }

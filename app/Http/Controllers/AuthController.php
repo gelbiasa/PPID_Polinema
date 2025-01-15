@@ -31,7 +31,7 @@ class AuthController extends Controller
                     'ADM' => url('/dashboardAdmin'),
                     'RPN' => url('/dashboardResponden'),
                     'MPU' => url('/dashboardMPU'),
-                    'VFR' => url('/dashboardVerifikator'),
+                    'VFR' => url('/dashboardVFR'),
                     default => url('/login') // Default jika role tidak dikenali
                 };
 

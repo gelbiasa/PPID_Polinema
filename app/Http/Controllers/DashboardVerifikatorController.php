@@ -14,6 +14,6 @@ class DashboardVerifikatorController extends Controller
 
         $activeMenu = 'dashboard';
 
-        return view('dashboardVerifikator', ['breadcrumb' => $breadcrumb, 'activeMenu' => $activeMenu]);
+        return view('dashboardVFR', ['breadcrumb' => $breadcrumb, 'activeMenu' => $activeMenu]);
     }
 }
