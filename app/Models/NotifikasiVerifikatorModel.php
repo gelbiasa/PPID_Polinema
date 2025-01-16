@@ -11,16 +11,16 @@ class NotifikasiVerifikatorModel extends Model
     use HasFactory, SoftDeletes;
 
     protected $table = 'notifikasi_verifikator';
-    protected $primaryKey = 'notifikasi_id';
+    protected $primaryKey = 'notifikasi_vfr_id';
     protected $fillable = [
-        'user_id', 
-        'kategori', 
+        'user_id',
+        'kategori',
         'permohonan_id',
         'pertanyaan_id',
-        'pesan',  
-        'suddah_dibaca', 
-        'created_at', 
-        'updated_at', 
+        'pesan',
+        'sudah_dibaca',
+        'created_at',
+        'updated_at',
         'deleted_at'
     ];
 

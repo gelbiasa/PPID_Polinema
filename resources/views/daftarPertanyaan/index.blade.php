@@ -3,30 +3,30 @@
 @section('content')
 
 <?php
-use App\Models\PermohonanModel;
+use App\Models\PertanyaanModel;
 
-$jumlahDaftarAkademik = PermohonanModel::where('kategori', 'Akademik')
+$jumlahDaftarAkademik = PertanyaanModel::where('kategori', 'Akademik')
     ->where('status', 'Diproses')
     ->count();
 
-$jumlahDaftarLayanan = PermohonanModel::where('kategori', 'Layanan')
+$jumlahDaftarLayanan = PertanyaanModel::where('kategori', 'Layanan')
     ->where('status', 'Diproses')
     ->count();
 
-$jumlahDaftarTeknis = PermohonanModel::where('kategori', 'Teknis')
+$jumlahDaftarTeknis = PertanyaanModel::where('kategori', 'Teknis')
     ->where('status', 'Diproses')
     ->count();
 ?>
 
 <div class="card">
     <div class="card-header">
-        <h3 class="card-title">Daftar Pengajuan Permohonan</h3>
+        <h3 class="card-title">Daftar Pengajuan Pertanyaaan</h3>
     </div>   
     <div class="card-body" style="padding-top: 10px;">
     <div class="row text-center">
         <!-- Akademis -->
         <div class="col-md-4">
-            <a href="{{ url('daftarPermohonan/daftarAkademik') }}" class="custom-button d-block p-3 mb-2">
+            <a href="{{ url('daftarPertanyaan/daftarAkademik') }}" class="custom-button d-block p-3 mb-2">
                 <i class="fas fa-graduation-cap fa-2x"></i>
                 <h5>Akademis</h5>
                 @if($jumlahDaftarAkademik > 0)
@@ -36,7 +36,7 @@ $jumlahDaftarTeknis = PermohonanModel::where('kategori', 'Teknis')
         </div>
         <!-- Layanan -->
         <div class="col-md-4">
-            <a href="{{ url('daftarPermohonan/daftarLayanan') }}" class="custom-button d-block p-3 mb-2">
+            <a href="{{ url('daftarPertanyaan/daftarLayanan') }}" class="custom-button d-block p-3 mb-2">
                 <i class="fas fa-concierge-bell fa-2x"></i>
                 <h5>Layanan</h5>
                 @if($jumlahDaftarLayanan > 0)
@@ -46,7 +46,7 @@ $jumlahDaftarTeknis = PermohonanModel::where('kategori', 'Teknis')
         </div>
         <!-- Teknis -->
         <div class="col-md-4">
-            <a href="{{ url('daftarPermohonan/daftarTeknis') }}" class="custom-button d-block p-3 mb-2">
+            <a href="{{ url('daftarPertanyaan/daftarTeknis') }}" class="custom-button d-block p-3 mb-2">
                 <i class="fas fa-tools fa-2x"></i>
                 <h5>Teknis</h5>
                 @if($jumlahDaftarTeknis > 0)

@@ -13,14 +13,15 @@ class DetailPertanyaanModel extends Model
     protected $table = 't_pertanyaan_detail';
     protected $primaryKey = 'detail_pertanyaan_id';
     protected $fillable = [
-        'pertanyaan_id', 
-        'pertanyaan', 
-        'jawaban',  
-        'created_at', 
-        'updated_at'
+        'pertanyaan_id',
+        'pertanyaan',
+        'jawaban',
+        'created_at',
+        'updated_at',
+        'deleted_at'
     ];
 
-    public function m_user()
+    public function t_pertanyaan()
     {
         return $this->belongsTo(PertanyaanModel::class, 'pertanyaan_id', 'pertanyaan_id');
     }

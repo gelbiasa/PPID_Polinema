@@ -72,6 +72,7 @@ class PermohonanController extends Controller
             'deskripsi' => $request->deskripsi,
             'dokumen_pendukung' => $dokumenPath,
             'status' => 'Diproses',
+            'jawaban' => null,
             'alasan_penolakan' => null,
             'deleted_at' => null,
         ]);
@@ -146,6 +147,7 @@ class PermohonanController extends Controller
             'deskripsi' => $request->deskripsi,
             'dokumen_pendukung' => $dokumenPath,
             'status' => 'Diproses',
+            'jawaban' => null,
             'alasan_penolakan' => null,
             'deleted_at' => null,
         ]);
@@ -221,6 +223,7 @@ class PermohonanController extends Controller
             'deskripsi' => $request->deskripsi,
             'dokumen_pendukung' => $dokumenPath,
             'status' => 'Diproses',
+            'jawaban' => null,
             'alasan_penolakan' => null,
             'deleted_at' => null,
         ]);

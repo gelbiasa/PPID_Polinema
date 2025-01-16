@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DaftarPermohonanController;
+use App\Http\Controllers\DaftarPertanyaanController;
 use App\Http\Controllers\DashboardAdminController;
 use App\Http\Controllers\DashboardMPUController;
 use App\Http\Controllers\DashboardRespondenController;
@@ -87,14 +88,33 @@ Route::middleware('auth')->group(function () {
 
     Route::group(['prefix' => 'daftarPermohonan', 'middleware' => ['authorize:VFR']], function () {
         Route::get('/', [DaftarPermohonanController::class, 'index']);
-        // Akademik
         Route::get('/daftarAkademik', [DaftarPermohonanController::class, 'daftarAkademik']);
-        Route::post('/storeAkademik', [PermohonanController::class, 'storeFormAkademik']);
-        // Layanan
-        Route::get('/formLayanan', [PermohonanController::class, 'formLayanan']);
-        Route::post('/storeLayanan', [PermohonanController::class, 'storeFormLayanan']);
-        // Teknis
-        Route::get('/formTeknis', [PermohonanController::class, 'formTeknis']);
-        Route::post('/storeTeknis', [PermohonanController::class, 'storeFormTeknis']);
-    });
+        Route::post('/setujui/{id}', [DaftarPermohonanController::class, 'setujuiPermohonanAkademik'])->name('daftarPermohonan.setujui');
+        Route::post('/tolak/{id}', [DaftarPermohonanController::class, 'tolakPermohonanAkademik'])->name('daftarPermohonan.tolak');
+        Route::post('/hapus/{id}', [DaftarPermohonanController::class, 'hapusPermohonanAkademik'])->name('daftarPermohonan.hapus');
+        Route::get('/daftarLayanan', [DaftarPermohonanController::class, 'daftarLayanan']);
+        Route::post('/setujui/{id}', [DaftarPermohonanController::class, 'setujuiPermohonanLayanan'])->name('daftarPermohonan.setujui');
+        Route::post('/tolak/{id}', [DaftarPermohonanController::class, 'tolakPermohonanLayanan'])->name('daftarPermohonan.tolak');
+        Route::post('/hapus/{id}', [DaftarPermohonanController::class, 'hapusPermohonanLayanan'])->name('daftarPermohonan.hapus');
+        Route::get('/daftarTeknis', [DaftarPermohonanController::class, 'daftarTeknis']);
+        Route::post('/setujui/{id}', [DaftarPermohonanController::class, 'setujuiPermohonanTeknis'])->name('daftarPermohonan.setujui');
+        Route::post('/tolak/{id}', [DaftarPermohonanController::class, 'tolakPermohonanTeknis'])->name('daftarPermohonan.tolak');
+        Route::post('/hapus/{id}', [DaftarPermohonanController::class, 'hapusPermohonanTeknis'])->name('daftarPermohonan.hapus');
+    });    
+
+    Route::group(['prefix' => 'daftarPertanyaan', 'middleware' => ['authorize:VFR']], function () {
+        Route::get('/', [DaftarPertanyaanController::class, 'index']);
+        Route::get('/daftarAkademik', [DaftarPertanyaanController::class, 'daftarAkademik']);
+        Route::post('/setujui/{id}', [DaftarPertanyaanController::class, 'setujuiPertanyaanAkademik'])->name('daftarPertanyaan.setujui');
+        Route::post('/tolak/{id}', [DaftarPertanyaanController::class, 'tolakPertanyaanAkademik'])->name('daftarPertanyaan.tolak');
+        Route::post('/hapus/{id}', [DaftarPertanyaanController::class, 'hapusPertanyaanAkademik'])->name('daftarPertanyaan.hapus');
+        Route::get('/daftarLayanan', [DaftarPertanyaanController::class, 'daftarLayanan']);
+        Route::post('/setujui/{id}', [DaftarPertanyaanController::class, 'setujuiPertanyaanLayanan'])->name('daftarPertanyaan.setujui');
+        Route::post('/tolak/{id}', [DaftarPertanyaanController::class, 'tolakPertanyaanLayanan'])->name('daftarPertanyaan.tolak');
+        Route::post('/hapus/{id}', [DaftarPertanyaanController::class, 'hapusPertanyaanLayanan'])->name('daftarPertanyaan.hapus');
+        Route::get('/daftarTeknis', [DaftarPertanyaanController::class, 'daftarTeknis']);
+        Route::post('/setujui/{id}', [DaftarPertanyaanController::class, 'setujuiPertanyaanTeknis'])->name('daftarPertanyaan.setujui');
+        Route::post('/tolak/{id}', [DaftarPertanyaanController::class, 'tolakPertanyaanTeknis'])->name('daftarPertanyaan.tolak');
+        Route::post('/hapus/{id}', [DaftarPertanyaanController::class, 'hapusPertanyaanTeknis'])->name('daftarPertanyaan.hapus');
+    });    
 });

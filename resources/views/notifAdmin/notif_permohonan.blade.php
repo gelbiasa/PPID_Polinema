@@ -19,8 +19,8 @@
             <i class="fas fa-bell fa-2x" style="margin-right: 15px;"></i>
             <div style="flex: 1;">
                 <p style="margin: 0; font-weight: bold;">{{ $item->pesan }}</p>
-                <p style="margin: 0;">Status pemohon: {{ $item->t_permohonan->status_pemohon }}</p>
-                <p style="margin: 0;">Kategori: {{ $item->t_permohonan->kategori }}</p>
+                <p style="margin: 0;">Status pemohon: {{ $item->t_permohonan->status_pemohon ?? '-' }}</p>
+                <p style="margin: 0;">Kategori: {{ $item->t_permohonan->kategori ?? '-' }}</p>
                 <p style="margin: 0; color: grey;">email: {{ $item->m_user->email }}</p>
                 <p style="margin: 0; color: grey;">nomor handphone: {{ $item->m_user->no_hp }}</p>
                 <p style="margin: 0;">{{ $item->created_at->diffForHumans() }}</p>
@@ -29,12 +29,12 @@
             <!-- Tombol -->
             <div style="display: flex; flex-direction: column; align-items: flex-end;">
                 <!-- Tombol Hapus -->
-                <button class="btn btn-danger btn-sm hapus-notifikasi" data-id="{{ $item->notifikasi_id }}" style="width: 132px;">
+                <button class="btn btn-danger btn-sm hapus-notifikasi" data-id="{{ $item->notifikasi_adm_id }}" style="width: 132px;">
                     Hapus
                 </button>
                 <!-- Tombol Tandai Telah Dibaca -->
                 @if(!$item->sudah_dibaca)
-                <button class="btn btn-secondary btn-sm mt-2 tandai-dibaca" data-id="{{ $item->notifikasi_id }}">
+                <button class="btn btn-secondary btn-sm mt-2 tandai-dibaca" data-id="{{ $item->notifikasi_adm_id }}">
                     Tandai telah Dibaca
                 </button>
                 @endif

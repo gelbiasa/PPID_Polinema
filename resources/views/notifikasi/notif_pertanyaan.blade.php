@@ -29,12 +29,12 @@
             <!-- Tombol -->
             <div style="display: flex; flex-direction: column; align-items: flex-end;">
                 <!-- Tombol Hapus -->
-                <button class="btn btn-danger btn-sm hapus-notifikasi" data-id="{{ $item->notifikasi_id }}" style="width: 132px;">
+                <button class="btn btn-danger btn-sm hapus-notifikasi" data-id="{{ $item->notifikasi_vfr_id }}" style="width: 132px;">
                     Hapus
                 </button>
                 <!-- Tombol Tandai Telah Dibaca -->
                 @if(!$item->sudah_dibaca)
-                <button class="btn btn-secondary btn-sm mt-2 tandai-dibaca" data-id="{{ $item->notifikasi_id }}">
+                <button class="btn btn-secondary btn-sm mt-2 tandai-dibaca" data-id="{{ $item->notifikasi_vfr_id }}">
                     Tandai telah Dibaca
                 </button>
                 @endif

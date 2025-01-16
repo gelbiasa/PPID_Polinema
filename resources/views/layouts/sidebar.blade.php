@@ -1,10 +1,12 @@
 <?php
 use App\Models\NotifikasiVerifikatorModel;
 use App\Models\NotifikasiAdminModel;
+use App\Models\PermohonanModel;
 
 // Hitung total notifikasi belum dibaca
 $totalNotifikasiVFR = NotifikasiVerifikatorModel::where('sudah_dibaca', null)->count();
 $totalNotifikasiADM = NotifikasiAdminModel::where('sudah_dibaca', null)->count();
+$totalNotifikasiVFRDaftarPermohonan = PermohonanModel::where('status', 'Diproses')->count();
 ?>
 
 <div class="sidebar">
@@ -96,6 +98,9 @@ $totalNotifikasiADM = NotifikasiAdminModel::where('sudah_dibaca', null)->count()
                     <a href="{{ url('/daftarPermohonan') }}" class="nav-link {{ $activeMenu == 'daftar_permohonan' ? 'active' : '' }}">
                         <i class="nav-icon fas fa-clipboard-list"></i>
                         <p>Daftar Permohonan</p>
+                        @if($totalNotifikasiVFRDaftarPermohonan > 0)
+                            <span class="badge badge-danger notification-badge">{{ $totalNotifikasiVFRDaftarPermohonan }}</span>
+                        @endif
                     </a>
                 </li>
                 <li class="nav-item">

@@ -6,17 +6,17 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-class NotifikasiAdminModel extends Model
+class NotifikasiMPUModel extends Model
 {
     use HasFactory, SoftDeletes;
 
-    protected $table = 'notifikasi_admin';
-    protected $primaryKey = 'notifikasi_adm_id';
+    protected $table = 'notifikasi_mpu';
+    protected $primaryKey = 'notifikasi_mpu_id';
     protected $fillable = [
         'user_id', 
         'kategori', 
-        'permohonan_id',
-        'pertanyaan_id',
+        'permohonan_lanjut_id',
+        'pertanyaan_lanjut_id',
         'pesan',  
         'sudah_dibaca', 
         'created_at', 
@@ -29,13 +29,13 @@ class NotifikasiAdminModel extends Model
         return $this->belongsTo(UserModel::class, 'user_id', 'user_id');
     }
 
-    public function t_permohonan()
+    public function t_permohonan_lanjut()
     {
-        return $this->belongsTo(PermohonanModel::class, 'permohonan_id', 'permohonan_id');
+        return $this->belongsTo(PermohonanLanjutModel::class, 'permohonan_lanjut_id', 'permohonan_lanjut_id');
     }
 
-    public function t_pertanyaan()
+    public function t_pertanyaan_lanjut()
     {
-        return $this->belongsTo(PertanyaanModel::class, 'pertanyaan_id', 'pertanyaan_id');
+        return $this->belongsTo(PertanyaanLanjutModel::class, 'pertanyaan_lanjut_id', 'pertanyaan_lanjut_id');
     }
 }

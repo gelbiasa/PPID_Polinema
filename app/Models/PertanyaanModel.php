@@ -13,18 +13,23 @@ class PertanyaanModel extends Model
     protected $table = 't_pertanyaan';
     protected $primaryKey = 'pertanyaan_id';
     protected $fillable = [
-        'user_id', 
-        'kategori', 
-        'status_pemohon',  
-        'status', 
-        'alasan_penolakan', 
-        'created_at', 
-        'updated_at', 
+        'user_id',
+        'kategori',
+        'status_pemohon',
+        'status',
+        'alasan_penolakan',
+        'created_at',
+        'updated_at',
         'deleted_at'
     ];
 
     public function m_user()
     {
         return $this->belongsTo(UserModel::class, 'user_id', 'user_id');
+    }
+
+    public function t_pertanyaan_detail()
+    {
+        return $this->hasMany(DetailPertanyaanModel::class, 'pertanyaan_id', 'pertanyaan_id');
     }
 }

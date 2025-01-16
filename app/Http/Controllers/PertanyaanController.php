@@ -75,6 +75,7 @@ class PertanyaanController extends Controller
                 'pertanyaan_id' => $pertanyaan->pertanyaan_id,
                 'pertanyaan' => $pertanyaanText,
                 'jawaban' => null,
+                'deleted_at' => null,
             ]);
         }
 
@@ -152,6 +153,7 @@ class PertanyaanController extends Controller
                 'pertanyaan_id' => $pertanyaan->pertanyaan_id,
                 'pertanyaan' => $pertanyaanText,
                 'jawaban' => null,
+                'deleted_at' => null,
             ]);
         }
 
@@ -229,6 +231,7 @@ class PertanyaanController extends Controller
                 'pertanyaan_id' => $pertanyaan->pertanyaan_id,
                 'pertanyaan' => $pertanyaanText,
                 'jawaban' => null,
+                'deleted_at' => null,
             ]);
         }
 

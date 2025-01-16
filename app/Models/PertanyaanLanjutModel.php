@@ -6,21 +6,17 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-class PermohonanModel extends Model
+class PertanyaanLanjutModel extends Model
 {
     use HasFactory, SoftDeletes;
 
-    protected $table = 't_permohonan';
-    protected $primaryKey = 'permohonan_id';
+    protected $table = 't_pertanyaan_lanjut';
+    protected $primaryKey = 'pertanyaan_lanjut_id';
     protected $fillable = [
         'user_id', 
         'kategori', 
-        'status_pemohon', 
-        'judul_pemohon', 
-        'deskripsi', 
-        'dokumen_pendukung', 
+        'status_pemohon',  
         'status', 
-        'jawaban',
         'alasan_penolakan', 
         'created_at', 
         'updated_at', 
@@ -30,5 +26,10 @@ class PermohonanModel extends Model
     public function m_user()
     {
         return $this->belongsTo(UserModel::class, 'user_id', 'user_id');
+    }
+
+    public function t_pertanyaan_detail_lanjut()
+    {
+        return $this->hasMany(DetailPertanyaanLanjutModel::class, 'pertanyaan_lanjut_id', 'pertanyaan_lanjut_id');
     }
 }

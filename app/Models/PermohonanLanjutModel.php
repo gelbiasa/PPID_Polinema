@@ -6,12 +6,12 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-class PermohonanModel extends Model
+class PermohonanLanjutModel extends Model
 {
     use HasFactory, SoftDeletes;
 
-    protected $table = 't_permohonan';
-    protected $primaryKey = 'permohonan_id';
+    protected $table = 't_permohonan_lanjut';
+    protected $primaryKey = 'permohonan_lanjut_id';
     protected $fillable = [
         'user_id', 
         'kategori', 

@@ -9,7 +9,7 @@
                 <i class="fa fa-arrow-left"></i> Kembali
             </a>
         </div>
-        <h3 class="card-title"><strong> Daftar Permohonan Akademik </strong></h3>
+        <h3 class="card-title"><strong> Daftar Permohonan Teknis </strong></h3>
     </div>
     <div class="card-body">
         @foreach($permohonan as $item)
