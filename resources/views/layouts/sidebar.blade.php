@@ -1,12 +1,29 @@
 <?php
+use Illuminate\Support\Facades\Auth;
 use App\Models\NotifikasiVerifikatorModel;
 use App\Models\NotifikasiAdminModel;
+use App\Models\NotifikasiMPUModel;
 use App\Models\PermohonanModel;
+use App\Models\PertanyaanModel;
+use App\Models\PermohonanLanjutModel;
+use App\Models\PertanyaanLanjutModel;
 
 // Hitung total notifikasi belum dibaca
 $totalNotifikasiVFR = NotifikasiVerifikatorModel::where('sudah_dibaca', null)->count();
 $totalNotifikasiADM = NotifikasiAdminModel::where('sudah_dibaca', null)->count();
+$totalNotifikasiMPU = NotifikasiMPUModel::where('sudah_dibaca', null)->count();
 $totalNotifikasiVFRDaftarPermohonan = PermohonanModel::where('status', 'Diproses')->count();
+$totalNotifikasiVFRDaftarPertanyaan = PertanyaanModel::where('status', 'Diproses')->count();
+$totalNotifikasiMPUDaftarPermohonan = PermohonanLanjutModel::where('status', 'Diproses')->count();
+$totalNotifikasiMPUDaftarPertanyaan = PertanyaanLanjutModel::where('status', 'Diproses')->count();
+// Perbaiki bagian notifikasi RPN dengan menambahkan Auth::check()
+$totalNotifikasiRPNDaftarPermohonan = Auth::check() ? PermohonanLanjutModel::where('status', 'Disetujui')
+    ->where('user_id', Auth::id())
+    ->count() : 0;
+
+$totalNotifikasiRPNDaftarPertanyaan = Auth::check() ? PertanyaanLanjutModel::where('status', 'Disetujui')
+    ->where('user_id', Auth::id())
+    ->count() : 0;
 ?>
 
 <div class="sidebar">
@@ -27,7 +44,8 @@ $totalNotifikasiVFRDaftarPermohonan = PermohonanModel::where('status', 'Diproses
             <!-- Menu untuk setiap level_kode -->
             @if (Auth::user()->level->level_kode == 'ADM')
                 <li class="nav-item">
-                    <a href="{{ url('/dashboardAdmin') }}" class="nav-link {{ $activeMenu == 'dashboard' ? 'active' : '' }} ">
+                    <a href="{{ url('/dashboardAdmin') }}"
+                        class="nav-link {{ $activeMenu == 'dashboard' ? 'active' : '' }} ">
                         <i class="nav-icon fas fa-tachometer-alt"></i>
                         <p>Dashboard</p>
                     </a>
@@ -60,16 +78,33 @@ $totalNotifikasiVFRDaftarPermohonan = PermohonanModel::where('status', 'Diproses
                         <p>Profile</p>
                     </a>
                 </li>
-                <li class="nav-item">
-                    <a href="{{ url('/kategori') }}" class="nav-link {{ $activeMenu == 'kategori' ? 'active' : '' }}">
-                        <i class="nav-icon far fa-bookmark"></i>
-                        <p>Kategori Barang</p>
+                <li class="nav-item" style="position: relative;">
+                    <a href="{{ url('/notifMPU') }}" class="nav-link {{ $activeMenu == 'notifikasi' ? 'active' : '' }}">
+                        <i class="nav-icon fas fa-bell"></i>
+                        <p>Notifikasi</p>
+                        @if($totalNotifikasiMPU > 0)
+                            <span class="badge badge-danger notification-badge">{{ $totalNotifikasiMPU }}</span>
+                        @endif
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a href="{{ url('/barang') }}" class="nav-link {{ $activeMenu == 'barang' ? 'active' : '' }}">
-                        <i class="nav-icon far fa-list-alt"></i>
-                        <p>Data Barang</p>
+                    <a href="{{ url('/pengajuanPermohonan') }}"
+                        class="nav-link {{ $activeMenu == 'pengajuan_permohonan' ? 'active' : '' }}">
+                        <i class="nav-icon fas fa-clipboard-list"></i>
+                        <p>Daftar Permohonan</p>
+                        @if($totalNotifikasiMPUDaftarPermohonan > 0)
+                            <span class="badge badge-danger notification-badge">{{ $totalNotifikasiMPUDaftarPermohonan }}</span>
+                        @endif
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="{{ url('/pengajuanPertanyaan') }}"
+                        class="nav-link {{ $activeMenu == 'pengajuan_pertanyaan' ? 'active' : '' }}">
+                        <i class="nav-icon fas fa-question-circle"></i>
+                        <p>Daftar Pertanyaan</p>
+                        @if($totalNotifikasiMPUDaftarPertanyaan > 0)
+                            <span class="badge badge-danger notification-badge">{{ $totalNotifikasiMPUDaftarPertanyaan }}</span>
+                        @endif
                     </a>
                 </li>
             @elseif (Auth::user()->level->level_kode == 'VFR')
@@ -95,7 +130,8 @@ $totalNotifikasiVFRDaftarPermohonan = PermohonanModel::where('status', 'Diproses
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a href="{{ url('/daftarPermohonan') }}" class="nav-link {{ $activeMenu == 'daftar_permohonan' ? 'active' : '' }}">
+                    <a href="{{ url('/daftarPermohonan') }}"
+                        class="nav-link {{ $activeMenu == 'daftar_permohonan' ? 'active' : '' }}">
                         <i class="nav-icon fas fa-clipboard-list"></i>
                         <p>Daftar Permohonan</p>
                         @if($totalNotifikasiVFRDaftarPermohonan > 0)
@@ -104,14 +140,19 @@ $totalNotifikasiVFRDaftarPermohonan = PermohonanModel::where('status', 'Diproses
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a href="{{ url('/daftarPertanyaan') }}" class="nav-link {{ $activeMenu == 'daftar_pertanyaan' ? 'active' : '' }}">
+                    <a href="{{ url('/daftarPertanyaan') }}"
+                        class="nav-link {{ $activeMenu == 'daftar_pertanyaan' ? 'active' : '' }}">
                         <i class="nav-icon fas fa-question-circle"></i>
                         <p>Daftar Pertanyaan</p>
+                        @if($totalNotifikasiVFRDaftarPertanyaan > 0)
+                            <span class="badge badge-danger notification-badge">{{ $totalNotifikasiVFRDaftarPertanyaan }}</span>
+                        @endif
                     </a>
                 </li>
             @elseif (Auth::user()->level->level_kode == 'RPN')
                 <li class="nav-item">
-                    <a href="{{ url('/dashboardResponden') }}" class="nav-link {{ $activeMenu == 'dashboard' ? 'active' : '' }}">
+                    <a href="{{ url('/dashboardResponden') }}"
+                        class="nav-link {{ $activeMenu == 'dashboard' ? 'active' : '' }}">
                         <i class="nav-icon fas fa-tachometer-alt"></i>
                         <p>Dashboard</p>
                     </a>
@@ -135,9 +176,23 @@ $totalNotifikasiVFRDaftarPermohonan = PermohonanModel::where('status', 'Diproses
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a href="{{ url('/riwayat') }}" class="nav-link {{ $activeMenu == 'riwayat' ? 'active' : '' }}">
+                    <a href="{{ url('/hasilPermohonan') }}"
+                        class="nav-link {{ $activeMenu == 'hasil_permohonan' ? 'active' : '' }}">
                         <i class="nav-icon fas fa-scroll"></i>
-                        <p>Riwayat</p>
+                        <p>Hasil Permohonan</p>
+                        @if($totalNotifikasiRPNDaftarPermohonan > 0)
+                            <span class="badge badge-danger notification-badge">{{ $totalNotifikasiRPNDaftarPermohonan }}</span>
+                        @endif
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="{{ url('/hasilPertanyaan') }}"
+                        class="nav-link {{ $activeMenu == 'hasil_pertanyaan' ? 'active' : '' }}">
+                        <i class="nav-icon fas fa-scroll"></i>
+                        <p>Hasil Pertanyaan</p>
+                        @if($totalNotifikasiRPNDaftarPertanyaan > 0) 
+                            <span class="badge badge-danger notification-badge">{{ $totalNotifikasiRPNDaftarPertanyaan }}</span>
+                        @endif
                     </a>
                 </li>
             @endif
@@ -148,14 +203,23 @@ $totalNotifikasiVFRDaftarPermohonan = PermohonanModel::where('status', 'Diproses
 <style>
     .notification-badge {
         position: absolute;
-        top: 50%; /* Vertikal tengah */
-        right: 10px; /* Geser ke kiri dari ujung kanan */
-        transform: translateY(-50%); /* Perbaiki posisi tengah */
-        background-color: #dc3545; /* Warna merah */
-        color: white; /* Warna teks */
-        padding: 3px 8px; /* Spasi dalam */
-        border-radius: 12px; /* Membulatkan sudut */
-        font-size: 12px; /* Ukuran font */
-        font-weight: bold; /* Tebal */
+        top: 50%;
+        /* Vertikal tengah */
+        right: 10px;
+        /* Geser ke kiri dari ujung kanan */
+        transform: translateY(-50%);
+        /* Perbaiki posisi tengah */
+        background-color: #dc3545;
+        /* Warna merah */
+        color: white;
+        /* Warna teks */
+        padding: 3px 8px;
+        /* Spasi dalam */
+        border-radius: 12px;
+        /* Membulatkan sudut */
+        font-size: 12px;
+        /* Ukuran font */
+        font-weight: bold;
+        /* Tebal */
     }
 </style>

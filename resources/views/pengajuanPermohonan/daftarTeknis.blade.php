@@ -5,19 +5,19 @@
 <div class="card">
     <div class="card-header d-flex align-items-center justify-content-between">
         <div>
-            <a href="{{ url('daftarPermohonan') }}" class="btn btn-secondary">
+            <a href="{{ url('pengajuanPermohonan') }}" class="btn btn-secondary">
                 <i class="fa fa-arrow-left"></i> Kembali
             </a>
         </div>
-        <h3 class="card-title"><strong> Daftar Permohonan Akademik </strong></h3>
+        <h3 class="card-title"><strong> Daftar Permohonan Teknis </strong></h3>
     </div>
     <div class="card-body">
         @foreach($permohonan as $item)
             <div class="custom-container" data-id="{{ $item->id }}" data-status="{{ $item->status }}" style="
-                            @if($item->status === 'Disetujui') background-color: lightgreen;
-                            @elseif($item->status === 'Ditolak') background-color: lightpink;
-                                @else background-color: lightblue; 
-                            @endif">
+                                        @if($item->status === 'Disetujui') background-color: lightgreen;
+                                        @elseif($item->status === 'Ditolak') background-color: lightpink;
+                                            @else background-color: lightblue; 
+                                        @endif">
 
                 <div class="info">
                     <p>
@@ -41,13 +41,15 @@
                         class="btn btn-info">Preview Dokumen</a>
                     <div class="action-buttons">
                         @if($item->status === 'Diproses')
-                            <button class="btn btn-warning btn-tolak tolak-permohonan" data-id="{{ $item->permohonan_id }}"
-                                data-nama="{{ $item->m_user->nama }}">Tolak</button>
-                            <button class="btn btn-success btn-setujui setujui-permohonan" data-id="{{ $item->permohonan_id }}"
+                            <button class="btn btn-warning btn-tolak tolak-permohonan"
+                                data-id="{{ $item->permohonan_lanjut_id }}" data-nama="{{ $item->m_user->nama }}">Tolak</button>
+                            <button class="btn btn-success btn-setujui setujui-permohonan"
+                                data-id="{{ $item->permohonan_lanjut_id }}"
                                 data-nama="{{ $item->m_user->nama }}">Setujui</button>
                         @endif
-                        <button class="btn btn-danger btn-hapus hapus-permohonan" data-id="{{ $item->permohonan_id }}"
-                            data-nama="{{ $item->m_user->nama }}" data-status="{{ $item->status }}">
+                        <button class="btn btn-danger btn-hapus hapus-permohonan"
+                            data-id="{{ $item->permohonan_lanjut_id }}" data-nama="{{ $item->m_user->nama }}"
+                            data-status="{{ $item->status }}">
                             Hapus
                         </button>
 
@@ -76,23 +78,32 @@
             const nama = this.dataset.nama;
 
             Swal.fire({
-                title: 'Apakah Anda yakin?',
-                text: "Permohonan ini akan disetujui.",
-                icon: 'question',
+                title: 'Unggah File Jawaban',
+                input: 'file',
+                inputAttributes: {
+                    'accept': '.pdf,.doc,.docx,.xlsx',
+                    'aria-label': 'Unggah file jawaban'
+                },
                 showCancelButton: true,
-                confirmButtonColor: '#3085d6',
-                cancelButtonColor: '#d33',
-                confirmButtonText: 'Ya, Setujui!',
-                cancelButtonText: 'Batal'
+                confirmButtonText: 'Setujui',
+                cancelButtonText: 'Batal',
+                preConfirm: (file) => {
+                    if (!file) {
+                        Swal.showValidationMessage('Silakan unggah file jawaban terlebih dahulu.');
+                    }
+                    return file;
+                }
             }).then((result) => {
                 if (result.isConfirmed) {
-                    fetch(`{{ url('daftarPermohonan/akademik/setujui') }}/${id}`, {
+                    const formData = new FormData();
+                    formData.append('jawaban', result.value);
+                    formData.append('_token', '{{ csrf_token() }}');
+
+                    fetch(`{{ url('pengajuanPermohonan/teknis/setujui') }}/${id}`, {
                         method: 'POST',
-                        headers: {
-                            'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                            'Content-Type': 'application/json',
-                        }
-                    }).then(response => response.json())
+                        body: formData
+                    })
+                        .then(response => response.json())
                         .then(data => {
                             if (data.success) {
                                 Swal.fire({
@@ -103,12 +114,15 @@
                                 }).then(() => {
                                     location.reload();
                                 });
+                            } else {
+                                throw new Error(data.message || 'Terjadi kesalahan');
                             }
-                        }).catch(error => {
+                        })
+                        .catch(error => {
                             console.error('Error:', error);
                             Swal.fire({
                                 title: 'Terjadi kesalahan!',
-                                text: 'Tidak dapat menyetujui permohonan.',
+                                text: error.message || 'Tidak dapat menyetujui permohonan.',
                                 icon: 'error',
                                 allowOutsideClick: false,
                             });
@@ -145,7 +159,7 @@
                 cancelButtonText: 'Batal'
             }).then((result) => {
                 if (result.isConfirmed) {
-                    fetch(`{{ url('daftarPermohonan/akademik/hapus') }}/${id}`, {
+                    fetch(`{{ url('pengajuanPermohonan/hapus') }}/${id}`, {
                         method: 'POST',
                         headers: {
                             'X-CSRF-TOKEN': '{{ csrf_token() }}',
@@ -205,7 +219,7 @@
                 }
             }).then((result) => {
                 if (result.isConfirmed) {
-                    fetch(`{{ url('daftarPermohonan/akademik/tolak') }}/${id}`, {
+                    fetch(`{{ url('pengajuanPermohonan/tolak') }}/${id}`, {
                         method: 'POST',
                         headers: {
                             'X-CSRF-TOKEN': '{{ csrf_token() }}',

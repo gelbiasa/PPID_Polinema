@@ -7,7 +7,7 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
 
-class PertanyaanNotificationMail extends Mailable
+class HasilPermohonanMail extends Mailable
 {
     use Queueable, SerializesModels;
 
@@ -34,7 +34,17 @@ class PertanyaanNotificationMail extends Mailable
      */
     public function build()
     {
-        return $this->subject('Status Pertanyaaan Anda')
-                    ->view('emails.pertanyaan-notification');
+        $email = $this->subject('Status Permohonan Anda')
+            ->view('emails.hasil-permohonan');
+
+        // Tambahkan lampiran jika status adalah 'Disetujui' dan terdapat file jawaban
+        if ($this->status === 'Disetujui' && $this->reason) {
+            $email->attach(storage_path('app/public/' . $this->reason), [
+                'as' => 'Dokumen_Jawaban.pdf',
+                'mime' => 'application/pdf',
+            ]);
+        }
+
+        return $email;
     }
 }

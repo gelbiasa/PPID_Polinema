@@ -5,7 +5,7 @@
 <div class="card">
     <div class="card-header d-flex align-items-center justify-content-between">
         <div>
-            <a href="{{ url('notifAdmin') }}" class="btn btn-secondary">
+            <a href="{{ url('notifMPU') }}" class="btn btn-secondary">
                 <i class="fa fa-arrow-left"></i> Kembali
             </a>
         </div>
@@ -19,8 +19,8 @@
             <i class="fas fa-bell fa-2x" style="margin-right: 15px;"></i>
             <div style="flex: 1;">
                 <p style="margin: 0; font-weight: bold;">{{ $item->pesan }}</p>
-                <p style="margin: 0;">Status pemohon: {{ $item->t_pertanyaan->status_pemohon ?? 'Data Sudah Dihapus' }}</p>
-                <p style="margin: 0;">Kategori: {{ $item->t_pertanyaan->kategori ?? 'Data Sudah Dihapus' }}</p>
+                <p style="margin: 0;">Status pemohon: {{ $item->t_pertanyaan_lanjut->status_pemohon ?? 'Data Sudah Dihapus' }}</p>
+                <p style="margin: 0;">Kategori: {{ $item->t_pertanyaan_lanjut->kategori ?? 'Data Sudah Dihapus' }}</p>
                 <p style="margin: 0; color: grey;">email: {{ $item->m_user->email }}</p>
                 <p style="margin: 0; color: grey;">nomor handphone: {{ $item->m_user->no_hp }}</p>
                 <p style="margin: 0;">{{ $item->created_at->diffForHumans() }}</p>
@@ -29,12 +29,12 @@
             <!-- Tombol -->
             <div style="display: flex; flex-direction: column; align-items: flex-end;">
                 <!-- Tombol Hapus -->
-                <button class="btn btn-danger btn-sm hapus-notifikasi" data-id="{{ $item->notifikasi_adm_id }}" style="width: 132px;">
+                <button class="btn btn-danger btn-sm hapus-notifikasi" data-id="{{ $item->notifikasi_mpu_id }}" style="width: 132px;">
                     Hapus
                 </button>
                 <!-- Tombol Tandai Telah Dibaca -->
                 @if(!$item->sudah_dibaca)
-                <button class="btn btn-secondary btn-sm mt-2 tandai-dibaca" data-id="{{ $item->notifikasi_adm_id }}">
+                <button class="btn btn-secondary btn-sm mt-2 tandai-dibaca" data-id="{{ $item->notifikasi_mpu_id }}">
                     Tandai telah Dibaca
                 </button>
                 @endif
@@ -63,7 +63,7 @@
             }).then((result) => {
                 if (result.isConfirmed) {
                     // Jika user mengkonfirmasi, lakukan aksi "tandai telah dibaca"
-                    fetch(`{{ url('notifAdmin/tandai-dibaca') }}/${id}`, {
+                    fetch(`{{ url('notifMPU/tandai-dibaca') }}/${id}`, {
                         method: 'POST',
                         headers: {
                             'X-CSRF-TOKEN': '{{ csrf_token() }}',
@@ -110,7 +110,7 @@
             }).then((result) => {
                 if (result.isConfirmed) {
                     // Jika user mengkonfirmasi, lakukan aksi "hapus notifikasi"
-                    fetch(`{{ url('notifAdmin/hapus') }}/${id}`, {
+                    fetch(`{{ url('notifMPU/hapus') }}/${id}`, {
                         method: 'DELETE',
                         headers: {
                             'X-CSRF-TOKEN': '{{ csrf_token() }}',

@@ -85,7 +85,7 @@
                 cancelButtonText: 'Batal'
             }).then((result) => {
                 if (result.isConfirmed) {
-                    fetch(`{{ url('daftarPertanyaan/setujui') }}/${id}`, {
+                    fetch(`{{ url('daftarPertanyaan/akademik/setujui') }}/${id}`, {
                         method: 'POST',
                         headers: {
                             'X-CSRF-TOKEN': '{{ csrf_token() }}',
@@ -144,7 +144,7 @@
                 cancelButtonText: 'Batal'
             }).then((result) => {
                 if (result.isConfirmed) {
-                    fetch(`{{ url('daftarPertanyaan/hapus') }}/${id}`, {
+                    fetch(`{{ url('daftarPertanyaan/akademik/hapus') }}/${id}`, {
                         method: 'POST',
                         headers: {
                             'X-CSRF-TOKEN': '{{ csrf_token() }}',
@@ -204,7 +204,7 @@
                 }
             }).then((result) => {
                 if (result.isConfirmed) {
-                    fetch(`{{ url('daftarPertanyaan/tolak') }}/${id}`, {
+                    fetch(`{{ url('daftarPertanyaan/akademik/tolak') }}/${id}`, {
                         method: 'POST',
                         headers: {
                             'X-CSRF-TOKEN': '{{ csrf_token() }}',

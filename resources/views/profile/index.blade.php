@@ -39,12 +39,12 @@
                                         <input type="text" class="form-control" id="nama" name="nama" value="{{ Auth::user()->nama }}" required>
                                     </div>
                                     <div class="form-group">
-                                        <label for="nama">Nomor Handphone</label>
-                                        <input type="text" class="form-control" id="nama" name="nama" value="{{ Auth::user()->no_hp }}" required>
+                                        <label for="no_hp">Nomor Handphone</label>
+                                        <input type="text" class="form-control" id="no_hp" name="no_hp" value="{{ Auth::user()->no_hp }}" required>
                                     </div>
                                     <div class="form-group">
-                                        <label for="nama">Email</label>
-                                        <input type="text" class="form-control" id="nama" name="nama" value="{{ Auth::user()->email }}" required>
+                                        <label for="email">Email</label>
+                                        <input type="email" class="form-control" id="email" name="email" value="{{ Auth::user()->email }}" required>
                                     </div>
                                     <div class="form-group">
                                         <label for="level_nama">Level Pengguna</label>
@@ -118,15 +118,25 @@
         });
 
         @if(session('success'))
-            alert('{{ session('success') }}');
+            Swal.fire({
+                icon: 'success',
+                title: 'Berhasil!',
+                text: '{{ session('success') }}',
+                timer: 3000,
+                showConfirmButton: false
+            });
         @endif
 
         @if(session('error_type') === 'current_password')
-            alert('Password lama tidak sesuai');
+            Swal.fire({
+                icon: 'error',
+                title: 'Error!',
+                text: 'Password lama tidak sesuai',
+            });
         @endif
 
         @if(session('error_type') === 'new_password' || session('error_type') === 'new_password_confirmation')
-            $('#password-tab').tab('show'); // Aktifkan tab "Ubah Password"
+            $('#password-tab').tab('show');
         @endif
     });
 </script>

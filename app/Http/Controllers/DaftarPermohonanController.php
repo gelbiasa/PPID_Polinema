@@ -8,6 +8,7 @@ use App\Models\PermohonanLanjutModel;
 use App\Models\PermohonanModel;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 
 class DaftarPermohonanController extends Controller
@@ -69,8 +70,13 @@ class DaftarPermohonanController extends Controller
         $permohonan->save();
 
         // Kirim email
-        Mail::to($user->email)->send(new PermohonanNotificationMail($user->nama,
-         'Ditolak', $permohonan->kategori, $permohonan->status_pemohon, $request->reason));
+        Mail::to($user->email)->send(new PermohonanNotificationMail(
+            $user->nama,
+            'Ditolak',
+            $permohonan->kategori,
+            $permohonan->status_pemohon,
+            $request->reason
+        ));
 
         return response()->json([
             'success' => true,
@@ -80,42 +86,51 @@ class DaftarPermohonanController extends Controller
 
     public function setujuiPermohonanAkademik($id)
     {
-        $permohonan = PermohonanModel::with('m_user')->findOrFail($id); 
+        try {
+            $permohonan = PermohonanModel::with('m_user')->findOrFail($id);
 
-        $permohonan->status = 'Disetujui';
-        $permohonan->updated_at = Carbon::now();
-        $permohonan->save();
+            // Update status permohonan
+            $permohonan->status = 'Disetujui';
+            $permohonan->updated_at = Carbon::now();
+            $permohonan->save();
 
-        PermohonanLanjutModel::create([
-            'permohonan_lanjut_id' => $permohonan->permohonan_id,
-            'user_id' => $permohonan->user_id,
-            'kategori' => $permohonan->kategori,
-            'status_pemohon' => $permohonan->status_pemohon,
-            'judul_pemohon' => $permohonan->judul_pemohon,
-            'deskripsi' => $permohonan->deskripsi,
-            'dokumen_pendukung' => $permohonan->dokumen_pendukung,
-            'status' => 'Diproses', // Tetap 'Diproses' di t_permohonan_lanjut
-            'created_at' => now(),
-            'updated_at' => now(),
-        ]);
+            // Buat permohonan lanjut
+            PermohonanLanjutModel::create([
+                'permohonan_lanjut_id' => $permohonan->permohonan_id,
+                'user_id' => $permohonan->user_id,
+                'kategori' => $permohonan->kategori,
+                'status_pemohon' => $permohonan->status_pemohon,
+                'judul_pemohon' => $permohonan->judul_pemohon,
+                'deskripsi' => $permohonan->deskripsi,
+                'dokumen_pendukung' => $permohonan->dokumen_pendukung,
+                'status' => 'Diproses',
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
 
-        // Simpan notifikasi ke database
-        NotifikasiMPUModel::create([
-            'user_id' => $permohonan->user_id,
-            'kategori' => 'permohonan',
-            'permohonan_lanjut_id' => $permohonan->permohonan_id,
-            'pertanyaan_lanjut_id' => null,
-            'pesan' => auth()->user()->nama . ' Mengajukan Permohonan ' . $permohonan->kategori,
-            'sudah_dibaca' => null,
-            'created_at' => now(),
-            'updated_at' => now(),
-            'deleted_at' => null,
-        ]);
+            // Buat notifikasi
+            NotifikasiMPUModel::create([
+                'user_id' => $permohonan->user_id,
+                'kategori' => 'permohonan',
+                'permohonan_lanjut_id' => $permohonan->permohonan_id,
+                'pertanyaan_lanjut_id' => null,
+                'pesan' => $permohonan->m_user->nama . ' Mengajukan Permohonan ' . $permohonan->kategori,
+                'sudah_dibaca' => null,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Permohonan berhasil disetujui.',
-        ]);
+            return response()->json([
+                'success' => true,
+                'message' => 'Permohonan berhasil disetujui.'
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Error pada setujui permohonan: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'Terjadi kesalahan saat menyetujui permohonan.'
+            ], 500);
+        }
     }
     public function hapusPermohonanAKademik($id)
     {
@@ -163,8 +178,13 @@ class DaftarPermohonanController extends Controller
         $permohonan->save();
 
         // Kirim email
-        Mail::to($user->email)->send(new PermohonanNotificationMail($user->nama,
-         'Ditolak', $permohonan->kategori, $permohonan->status_pemohon, $request->reason));
+        Mail::to($user->email)->send(new PermohonanNotificationMail(
+            $user->nama,
+            'Ditolak',
+            $permohonan->kategori,
+            $permohonan->status_pemohon,
+            $request->reason
+        ));
 
         return response()->json([
             'success' => true,
@@ -174,42 +194,51 @@ class DaftarPermohonanController extends Controller
 
     public function setujuiPermohonanLayanan($id)
     {
-        $permohonan = PermohonanModel::with('m_user')->findOrFail($id); 
+        try {
+            $permohonan = PermohonanModel::with('m_user')->findOrFail($id);
 
-        $permohonan->status = 'Disetujui';
-        $permohonan->updated_at = Carbon::now();
-        $permohonan->save();
+            // Update status permohonan
+            $permohonan->status = 'Disetujui';
+            $permohonan->updated_at = Carbon::now();
+            $permohonan->save();
 
-        PermohonanLanjutModel::create([
-            'permohonan_lanjut_id' => $permohonan->permohonan_id,
-            'user_id' => $permohonan->user_id,
-            'kategori' => $permohonan->kategori,
-            'status_pemohon' => $permohonan->status_pemohon,
-            'judul_pemohon' => $permohonan->judul_pemohon,
-            'deskripsi' => $permohonan->deskripsi,
-            'dokumen_pendukung' => $permohonan->dokumen_pendukung,
-            'status' => 'Diproses', // Tetap 'Diproses' di t_permohonan_lanjut
-            'created_at' => now(),
-            'updated_at' => now(),
-        ]);
+            // Buat permohonan lanjut
+            PermohonanLanjutModel::create([
+                'permohonan_lanjut_id' => $permohonan->permohonan_id,
+                'user_id' => $permohonan->user_id,
+                'kategori' => $permohonan->kategori,
+                'status_pemohon' => $permohonan->status_pemohon,
+                'judul_pemohon' => $permohonan->judul_pemohon,
+                'deskripsi' => $permohonan->deskripsi,
+                'dokumen_pendukung' => $permohonan->dokumen_pendukung,
+                'status' => 'Diproses',
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
 
-        // Simpan notifikasi ke database
-        NotifikasiMPUModel::create([
-            'user_id' => $permohonan->user_id,
-            'kategori' => 'permohonan',
-            'permohonan_lanjut_id' => $permohonan->permohonan_id,
-            'pertanyaan_lanjut_id' => null,
-            'pesan' => auth()->user()->nama . ' Mengajukan Permohonan ' . $permohonan->kategori,
-            'sudah_dibaca' => null,
-            'created_at' => now(),
-            'updated_at' => now(),
-            'deleted_at' => null,
-        ]);
+            // Buat notifikasi
+            NotifikasiMPUModel::create([
+                'user_id' => $permohonan->user_id,
+                'kategori' => 'permohonan',
+                'permohonan_lanjut_id' => $permohonan->permohonan_id,
+                'pertanyaan_lanjut_id' => null,
+                'pesan' => $permohonan->m_user->nama . ' Mengajukan Permohonan ' . $permohonan->kategori,
+                'sudah_dibaca' => null,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Permohonan berhasil disetujui.',
-        ]);
+            return response()->json([
+                'success' => true,
+                'message' => 'Permohonan berhasil disetujui.'
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Error pada setujui permohonan: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'Terjadi kesalahan saat menyetujui permohonan.'
+            ], 500);
+        }
     }
     public function hapusPermohonanLayanan($id)
     {
@@ -257,8 +286,13 @@ class DaftarPermohonanController extends Controller
         $permohonan->save();
 
         // Kirim email
-        Mail::to($user->email)->send(new PermohonanNotificationMail($user->nama,
-         'Ditolak', $permohonan->kategori, $permohonan->status_pemohon, $request->reason));
+        Mail::to($user->email)->send(new PermohonanNotificationMail(
+            $user->nama,
+            'Ditolak',
+            $permohonan->kategori,
+            $permohonan->status_pemohon,
+            $request->reason
+        ));
 
         return response()->json([
             'success' => true,
@@ -268,42 +302,51 @@ class DaftarPermohonanController extends Controller
 
     public function setujuiPermohonanTeknis($id)
     {
-        $permohonan = PermohonanModel::with('m_user')->findOrFail($id); 
+        try {
+            $permohonan = PermohonanModel::with('m_user')->findOrFail($id);
 
-        $permohonan->status = 'Disetujui';
-        $permohonan->updated_at = Carbon::now();
-        $permohonan->save();
+            // Update status permohonan
+            $permohonan->status = 'Disetujui';
+            $permohonan->updated_at = Carbon::now();
+            $permohonan->save();
 
-        PermohonanLanjutModel::create([
-            'permohonan_lanjut_id' => $permohonan->permohonan_id,
-            'user_id' => $permohonan->user_id,
-            'kategori' => $permohonan->kategori,
-            'status_pemohon' => $permohonan->status_pemohon,
-            'judul_pemohon' => $permohonan->judul_pemohon,
-            'deskripsi' => $permohonan->deskripsi,
-            'dokumen_pendukung' => $permohonan->dokumen_pendukung,
-            'status' => 'Diproses', // Tetap 'Diproses' di t_permohonan_lanjut
-            'created_at' => now(),
-            'updated_at' => now(),
-        ]);
+            // Buat permohonan lanjut
+            PermohonanLanjutModel::create([
+                'permohonan_lanjut_id' => $permohonan->permohonan_id,
+                'user_id' => $permohonan->user_id,
+                'kategori' => $permohonan->kategori,
+                'status_pemohon' => $permohonan->status_pemohon,
+                'judul_pemohon' => $permohonan->judul_pemohon,
+                'deskripsi' => $permohonan->deskripsi,
+                'dokumen_pendukung' => $permohonan->dokumen_pendukung,
+                'status' => 'Diproses',
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
 
-        // Simpan notifikasi ke database
-        NotifikasiMPUModel::create([
-            'user_id' => $permohonan->user_id,
-            'kategori' => 'permohonan',
-            'permohonan_lanjut_id' => $permohonan->permohonan_id,
-            'pertanyaan_lanjut_id' => null,
-            'pesan' => auth()->user()->nama . ' Mengajukan Permohonan ' . $permohonan->kategori,
-            'sudah_dibaca' => null,
-            'created_at' => now(),
-            'updated_at' => now(),
-            'deleted_at' => null,
-        ]);
+            // Buat notifikasi
+            NotifikasiMPUModel::create([
+                'user_id' => $permohonan->user_id,
+                'kategori' => 'permohonan',
+                'permohonan_lanjut_id' => $permohonan->permohonan_id,
+                'pertanyaan_lanjut_id' => null,
+                'pesan' => $permohonan->m_user->nama . ' Mengajukan Permohonan ' . $permohonan->kategori,
+                'sudah_dibaca' => null,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Permohonan berhasil disetujui.',
-        ]);
+            return response()->json([
+                'success' => true,
+                'message' => 'Permohonan berhasil disetujui.'
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Error pada setujui permohonan: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'Terjadi kesalahan saat menyetujui permohonan.'
+            ], 500);
+        }
     }
     public function hapusPermohonanTeknis($id)
     {

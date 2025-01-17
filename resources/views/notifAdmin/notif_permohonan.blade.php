@@ -19,8 +19,8 @@
             <i class="fas fa-bell fa-2x" style="margin-right: 15px;"></i>
             <div style="flex: 1;">
                 <p style="margin: 0; font-weight: bold;">{{ $item->pesan }}</p>
-                <p style="margin: 0;">Status pemohon: {{ $item->t_permohonan->status_pemohon ?? '-' }}</p>
-                <p style="margin: 0;">Kategori: {{ $item->t_permohonan->kategori ?? '-' }}</p>
+                <p style="margin: 0;">Status pemohon: {{ $item->t_permohonan->status_pemohon ?? 'Data Sudah Dihapus' }}</p>
+                <p style="margin: 0;">Kategori: {{ $item->t_permohonan->kategori ?? 'Data Sudah Dihapus' }}</p>
                 <p style="margin: 0; color: grey;">email: {{ $item->m_user->email }}</p>
                 <p style="margin: 0; color: grey;">nomor handphone: {{ $item->m_user->no_hp }}</p>
                 <p style="margin: 0;">{{ $item->created_at->diffForHumans() }}</p>

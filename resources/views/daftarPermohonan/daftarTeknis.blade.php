@@ -86,7 +86,7 @@
                 cancelButtonText: 'Batal'
             }).then((result) => {
                 if (result.isConfirmed) {
-                    fetch(`{{ url('daftarPermohonan/setujui') }}/${id}`, {
+                    fetch(`{{ url('daftarPermohonan/teknis/setujui') }}/${id}`, {
                         method: 'POST',
                         headers: {
                             'X-CSRF-TOKEN': '{{ csrf_token() }}',
@@ -145,7 +145,7 @@
                 cancelButtonText: 'Batal'
             }).then((result) => {
                 if (result.isConfirmed) {
-                    fetch(`{{ url('daftarPermohonan/hapus') }}/${id}`, {
+                    fetch(`{{ url('daftarPermohonan/teknis/hapus') }}/${id}`, {
                         method: 'POST',
                         headers: {
                             'X-CSRF-TOKEN': '{{ csrf_token() }}',
@@ -205,7 +205,7 @@
                 }
             }).then((result) => {
                 if (result.isConfirmed) {
-                    fetch(`{{ url('daftarPermohonan/tolak') }}/${id}`, {
+                    fetch(`{{ url('daftarPermohonan/teknis/tolak') }}/${id}`, {
                         method: 'POST',
                         headers: {
                             'X-CSRF-TOKEN': '{{ csrf_token() }}',

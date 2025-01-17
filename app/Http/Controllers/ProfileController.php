@@ -33,8 +33,10 @@ class ProfileController extends Controller
     {
         // Validasi input
         $request->validate([
-            'username' => 'required|string|min:3|unique:m_user,username,' . $id . ',user_id', // username harus unik
-            'nama' => 'required|string|max:100', // nama harus diisi dan maksimal 100 karakter
+            'username' => 'required|string|min:3|unique:m_user,username,' . $id . ',user_id',
+            'nama' => 'required|string|max:100',
+            'email' => 'required|email|unique:m_user,email,' . $id . ',user_id',
+            'no_hp' => 'required|string',
         ]);
 
         // Mengambil pengguna berdasarkan ID
@@ -43,6 +45,8 @@ class ProfileController extends Controller
         // Update data pengguna
         $user->username = $request->username;
         $user->nama = $request->nama;
+        $user->email = $request->email;
+        $user->no_hp = $request->no_hp;
 
         // Simpan perubahan
         $user->save();
@@ -93,5 +97,4 @@ class ProfileController extends Controller
 
         return redirect()->back()->with('success', 'Password berhasil diubah');
     }
-
 }

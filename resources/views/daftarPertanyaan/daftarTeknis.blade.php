@@ -5,19 +5,19 @@
 <div class="card">
     <div class="card-header d-flex align-items-center justify-content-between">
         <div>
-            <a href="{{ url('daftarPermohonan') }}" class="btn btn-secondary">
+            <a href="{{ url('daftarPertanyaan') }}" class="btn btn-secondary">
                 <i class="fa fa-arrow-left"></i> Kembali
             </a>
         </div>
-        <h3 class="card-title"><strong> Daftar Permohonan Akademik </strong></h3>
+        <h3 class="card-title"><strong> Daftar Pertanyaan Teknis </strong></h3>
     </div>
     <div class="card-body">
-        @foreach($permohonan as $item)
+        @foreach($pertanyaan as $item)
             <div class="custom-container" data-id="{{ $item->id }}" data-status="{{ $item->status }}" style="
-                            @if($item->status === 'Disetujui') background-color: lightgreen;
-                            @elseif($item->status === 'Ditolak') background-color: lightpink;
-                                @else background-color: lightblue; 
-                            @endif">
+                        @if($item->status === 'Disetujui') background-color: lightgreen;
+                        @elseif($item->status === 'Ditolak') background-color: lightpink;
+                            @else background-color: lightblue; 
+                        @endif">
 
                 <div class="info">
                     <p>
@@ -27,7 +27,6 @@
                     </p>
                     <p class="pemohon-info">
                         <strong>Status pemohon:</strong> {{ $item->status_pemohon }} <br>
-                        <strong>Judul pemohon:</strong> {{ $item->judul_pemohon }}
                     </p>
                 </div>
                 <button class="btn btn-primary badge-button toggle-detail">Lihat Detail</button>
@@ -35,26 +34,30 @@
             <!-- Container Detail -->
             <div class="detail-container" style="display: none;">
                 <div class="detail-content">
-                    <p><strong>Deskripsi:</strong> {{ $item->deskripsi }}</p>
-                    <p><strong>Dokumen Pendukung:</strong></p>
-                    <a href="{{ asset('storage/' . $item->dokumen_pendukung) }}" target="_blank"
-                        class="btn btn-info">Preview Dokumen</a>
+                    <div>
+                        <strong>Pertanyaan:</strong>
+                        <ul>
+                            @foreach ($item->t_pertanyaan_detail as $detail)
+                                <li>{{ $detail->pertanyaan }}</li>
+                            @endforeach
+                        </ul>
+                    </div>
                     <div class="action-buttons">
                         @if($item->status === 'Diproses')
-                            <button class="btn btn-warning btn-tolak tolak-permohonan" data-id="{{ $item->permohonan_id }}"
+                            <button class="btn btn-warning btn-tolak tolak-pertanyaan" data-id="{{ $item->pertanyaan_id }}"
                                 data-nama="{{ $item->m_user->nama }}">Tolak</button>
-                            <button class="btn btn-success btn-setujui setujui-permohonan" data-id="{{ $item->permohonan_id }}"
+                            <button class="btn btn-success btn-setujui setujui-pertanyaan" data-id="{{ $item->pertanyaan_id }}"
                                 data-nama="{{ $item->m_user->nama }}">Setujui</button>
                         @endif
-                        <button class="btn btn-danger btn-hapus hapus-permohonan" data-id="{{ $item->permohonan_id }}"
+                        <button class="btn btn-danger btn-hapus hapus-pertanyaan" data-id="{{ $item->pertanyaan_id }}"
                             data-nama="{{ $item->m_user->nama }}" data-status="{{ $item->status }}">
                             Hapus
                         </button>
-
                     </div>
                 </div>
             </div>
         @endforeach
+
     </div>
 </div>
 
@@ -62,22 +65,18 @@
     document.querySelectorAll('.toggle-detail').forEach(button => {
         button.addEventListener('click', function () {
             const detailContainer = this.closest('.custom-container').nextElementSibling;
-            if (detailContainer.style.display === 'none') {
-                detailContainer.style.display = 'block';
-            } else {
-                detailContainer.style.display = 'none';
-            }
+            detailContainer.style.display = detailContainer.style.display === 'none' ? 'block' : 'none';
         });
     });
 
-    document.querySelectorAll('.setujui-permohonan').forEach(button => {
+    document.querySelectorAll('.setujui-pertanyaan').forEach(button => {
         button.addEventListener('click', function () {
             const id = this.dataset.id;
             const nama = this.dataset.nama;
 
             Swal.fire({
                 title: 'Apakah Anda yakin?',
-                text: "Permohonan ini akan disetujui.",
+                text: "Pertanyaan ini akan disetujui.",
                 icon: 'question',
                 showCancelButton: true,
                 confirmButtonColor: '#3085d6',
@@ -86,7 +85,7 @@
                 cancelButtonText: 'Batal'
             }).then((result) => {
                 if (result.isConfirmed) {
-                    fetch(`{{ url('daftarPermohonan/akademik/setujui') }}/${id}`, {
+                    fetch(`{{ url('daftarPertanyaan/teknis/setujui') }}/${id}`, {
                         method: 'POST',
                         headers: {
                             'X-CSRF-TOKEN': '{{ csrf_token() }}',
@@ -97,7 +96,7 @@
                             if (data.success) {
                                 Swal.fire({
                                     title: 'Berhasil!',
-                                    text: `Permohonan ${nama} telah disetujui.`,
+                                    text: `Pertanyaan ${nama} telah disetujui.`,
                                     icon: 'success',
                                     allowOutsideClick: false,
                                 }).then(() => {
@@ -108,7 +107,7 @@
                             console.error('Error:', error);
                             Swal.fire({
                                 title: 'Terjadi kesalahan!',
-                                text: 'Tidak dapat menyetujui permohonan.',
+                                text: 'Tidak dapat menyetujui pertanyaan.',
                                 icon: 'error',
                                 allowOutsideClick: false,
                             });
@@ -118,7 +117,7 @@
         });
     });
 
-    document.querySelectorAll('.hapus-permohonan').forEach(button => {
+    document.querySelectorAll('.hapus-pertanyaan').forEach(button => {
         button.addEventListener('click', function () {
             const id = this.dataset.id;
             const nama = this.dataset.nama;
@@ -127,7 +126,7 @@
             if (status !== 'Disetujui' && status !== 'Ditolak') {
                 Swal.fire({
                     title: 'Tidak Dapat Menghapus!',
-                    text: 'Anda harus menyetujui atau menolak permohonan ini terlebih dahulu.',
+                    text: 'Anda harus menyetujui atau menolak pertanyaan ini terlebih dahulu.',
                     icon: 'warning',
                     confirmButtonText: 'OK',
                 });
@@ -136,7 +135,7 @@
 
             Swal.fire({
                 title: 'Apakah Anda yakin?',
-                text: "Permohonan ini akan dihapus.",
+                text: "Pertanyaan ini akan dihapus.",
                 icon: 'warning',
                 showCancelButton: true,
                 confirmButtonColor: '#3085d6',
@@ -145,7 +144,7 @@
                 cancelButtonText: 'Batal'
             }).then((result) => {
                 if (result.isConfirmed) {
-                    fetch(`{{ url('daftarPermohonan/akademik/hapus') }}/${id}`, {
+                    fetch(`{{ url('daftarPertanyaan/teknis/hapus') }}/${id}`, {
                         method: 'POST',
                         headers: {
                             'X-CSRF-TOKEN': '{{ csrf_token() }}',
@@ -156,7 +155,7 @@
                             if (data.success) {
                                 Swal.fire({
                                     title: 'Berhasil!',
-                                    text: `Permohonan ${nama} telah dihapus.`,
+                                    text: `Pertanyaan ${nama} telah dihapus.`,
                                     icon: 'success',
                                     allowOutsideClick: false,
                                 }).then(() => {
@@ -167,7 +166,7 @@
                             console.error('Error:', error);
                             Swal.fire({
                                 title: 'Terjadi kesalahan!',
-                                text: 'Tidak dapat menghapus permohonan.',
+                                text: 'Tidak dapat menghapus pertanyaan.',
                                 icon: 'error',
                                 allowOutsideClick: false,
                             });
@@ -177,7 +176,7 @@
         });
     });
 
-    document.querySelectorAll('.tolak-permohonan').forEach(button => {
+    document.querySelectorAll('.tolak-pertanyaan').forEach(button => {
         button.addEventListener('click', function () {
             const id = this.dataset.id;
             const nama = this.dataset.nama;
@@ -205,7 +204,7 @@
                 }
             }).then((result) => {
                 if (result.isConfirmed) {
-                    fetch(`{{ url('daftarPermohonan/akademik/tolak') }}/${id}`, {
+                    fetch(`{{ url('daftarPertanyaan/teknis/tolak') }}/${id}`, {
                         method: 'POST',
                         headers: {
                             'X-CSRF-TOKEN': '{{ csrf_token() }}',
@@ -217,7 +216,7 @@
                             if (data.success) {
                                 Swal.fire({
                                     title: 'Berhasil!',
-                                    text: `Permohonan ${nama} telah ditolak.`,
+                                    text: `Pertanyaan ${nama} telah ditolak.`,
                                     icon: 'success',
                                     allowOutsideClick: false,
                                 }).then(() => {
@@ -228,7 +227,7 @@
                             console.error('Error:', error);
                             Swal.fire({
                                 title: 'Terjadi kesalahan!',
-                                text: 'Tidak dapat menolak permohonan.',
+                                text: 'Tidak dapat menolak pertanyaan.',
                                 icon: 'error',
                                 allowOutsideClick: false,
                             });
@@ -248,7 +247,6 @@
             });
         });
     });
-
 </script>
 
 <style>

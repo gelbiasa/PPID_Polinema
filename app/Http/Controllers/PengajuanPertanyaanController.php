@@ -2,18 +2,15 @@
 
 namespace App\Http\Controllers;
 
-use App\Mail\PertanyaanNotificationMail;
+use App\Mail\HasilPertanyaanMail;
 use App\Models\DetailPertanyaanLanjutModel;
-use App\Models\DetailPertanyaanModel;
-use App\Models\NotifikasiMPUModel;
 use App\Models\PertanyaanLanjutModel;
-use App\Models\PertanyaanModel;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
-use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 
-class DaftarPertanyaanController extends Controller
+class PengajuanPertanyaanController extends Controller
 {
     public function index()
     {
@@ -26,9 +23,9 @@ class DaftarPertanyaanController extends Controller
             'title' => 'Daftar Pertanyaan'
         ];
 
-        $activeMenu = 'daftar_pertanyaan'; // Set the active menu
+        $activeMenu = 'pengajuan_pertanyaan'; // Set the active menu
 
-        return view('daftarPertanyaan.index', [
+        return view('pengajuanPertanyaan.index', [
             'breadcrumb' => $breadcrumb,
             'page' => $page,
             'activeMenu' => $activeMenu
@@ -46,14 +43,14 @@ class DaftarPertanyaanController extends Controller
             'title' => 'Daftar Pertanyaan'
         ];
 
-        $activeMenu = 'daftar_pertanyaan';
+        $activeMenu = 'pengajuan_pertanyaan';
 
         // Ambil data pertanyaan beserta detailnya
-        $pertanyaan = PertanyaanModel::where('kategori', 'Akademik')
-            ->with(['m_user', 't_pertanyaan_detail']) // Relasi detail pertanyaan
+        $pertanyaan = PertanyaanLanjutModel::where('kategori', 'Akademik')
+            ->with(['m_user', 't_pertanyaan_detail_lanjut']) // Relasi detail pertanyaan
             ->get();
 
-        return view('daftarPertanyaan.daftarAkademik', [
+        return view('pengajuanPertanyaan.daftarAkademik', [
             'breadcrumb' => $breadcrumb,
             'page' => $page,
             'activeMenu' => $activeMenu,
@@ -65,7 +62,7 @@ class DaftarPertanyaanController extends Controller
     {
         try {
             // Ambil data pertanyaan beserta detail dan user
-            $pertanyaan = PertanyaanModel::with(['t_pertanyaan_detail', 'm_user'])->findOrFail($id);
+            $pertanyaan = PertanyaanLanjutModel::with(['t_pertanyaan_detail_lanjut', 'm_user'])->findOrFail($id);
             $user = $pertanyaan->m_user;
 
             // Update status dan alasan penolakan
@@ -75,7 +72,7 @@ class DaftarPertanyaanController extends Controller
             $pertanyaan->save();
 
             // Kirim email notifikasi
-            Mail::to($user->email)->send(new PertanyaanNotificationMail(
+            Mail::to($user->email)->send(new HasilPertanyaanMail(
                 $user->nama,
                 'Ditolak',
                 $pertanyaan->kategori,
@@ -96,49 +93,44 @@ class DaftarPertanyaanController extends Controller
         }
     }
 
-
-    public function setujuiPertanyaanAkademik($id)
+    public function setujuiPertanyaanAkademik(Request $request, $id)
     {
         try {
             // Ambil data pertanyaan beserta detail dan user
-            $pertanyaan = PertanyaanModel::with(['t_pertanyaan_detail', 'm_user'])->findOrFail($id);
+            $pertanyaan = PertanyaanLanjutModel::with(['t_pertanyaan_detail_lanjut', 'm_user'])->findOrFail($id);
+            $user = $pertanyaan->m_user;
+
+            // Update jawaban untuk setiap pertanyaan detail
+            $detailPertanyaan = [];
+            if ($request->has('jawaban')) {
+                foreach ($request->jawaban as $jawaban) {
+                    // Update jawaban
+                    DetailPertanyaanLanjutModel::where('detail_pertanyaan_lanjut_id', $jawaban['id'])
+                        ->update(['jawaban' => $jawaban['jawaban']]);
+
+                    // Simpan detail untuk email
+                    $detail = DetailPertanyaanLanjutModel::find($jawaban['id']);
+                    $detailPertanyaan[] = [
+                        'pertanyaan' => $detail->pertanyaan,
+                        'jawaban' => $jawaban['jawaban'] // Gunakan jawaban yang baru diupdate
+                    ];
+                }
+            }
 
             // Update status pertanyaan
             $pertanyaan->status = 'Disetujui';
             $pertanyaan->updated_at = now();
             $pertanyaan->save();
 
-            // Buat record baru di t_pertanyaan_lanjut
-            $pertanyaanLanjut = PertanyaanLanjutModel::create([
-                'user_id' => $pertanyaan->user_id,
-                'kategori' => $pertanyaan->kategori,
-                'status_pemohon' => $pertanyaan->status_pemohon,
-                'status' => 'Diproses',
-                'created_at' => now(),
-                'updated_at' => now()
-            ]);
-
-            // Salin semua detail pertanyaan ke t_pertanyaan_detail_lanjut
-            foreach ($pertanyaan->t_pertanyaan_detail as $detail) {
-                DetailPertanyaanLanjutModel::create([
-                    'pertanyaan_lanjut_id' => $pertanyaanLanjut->pertanyaan_lanjut_id,
-                    'pertanyaan' => $detail->pertanyaan,
-                    'created_at' => now(),
-                    'updated_at' => now()
-                ]);
-            }
-
-            // Buat notifikasi
-            NotifikasiMPUModel::create([
-                'user_id' => $pertanyaan->user_id,
-                'kategori' => 'pertanyaan',
-                'permohonan_lanjut_id' => null,
-                'pertanyaan_lanjut_id' => $pertanyaanLanjut->pertanyaan_lanjut_id,
-                'pesan' => $pertanyaan->m_user->nama . ' Menyetujui Pertanyaan ' . $pertanyaan->kategori,
-                'sudah_dibaca' => null,
-                'created_at' => now(),
-                'updated_at' => now()
-            ]);
+            // Kirim email notifikasi dengan data yang sudah diupdate
+            Mail::to($user->email)->send(new HasilPertanyaanMail(
+                $user->nama,
+                'Disetujui',
+                $pertanyaan->kategori,
+                $pertanyaan->status_pemohon,
+                null,
+                $detailPertanyaan
+            ));
 
             return response()->json([
                 'success' => true,
@@ -157,14 +149,14 @@ class DaftarPertanyaanController extends Controller
     {
         try {
             // Ambil data pertanyaan berdasarkan ID
-            $pertanyaan = PertanyaanModel::findOrFail($id);
+            $pertanyaan = PertanyaanLanjutModel::findOrFail($id);
 
             // Update nilai deleted_at pada t_pertanyaan
             $pertanyaan->deleted_at = Carbon::now();
             $pertanyaan->save();
 
             // Update nilai deleted_at untuk semua detail yang berelasi
-            DetailPertanyaanModel::where('pertanyaan_id', $id)
+            DetailPertanyaanLanjutModel::where('pertanyaan_lanjut_id', $id)
                 ->update(['deleted_at' => Carbon::now()]);
 
             return response()->json(['success' => true, 'message' => 'Pertanyaan dan detail berhasil dihapus']);
@@ -185,24 +177,24 @@ class DaftarPertanyaanController extends Controller
             'title' => 'Daftar Pertanyaan'
         ];
 
-        $activeMenu = 'daftar_pertanyaan'; // Set the active menu
+        $activeMenu = 'pengajuan_pertanyaan';
 
         // Ambil data pertanyaan beserta detailnya
-        $pertanyaan = PertanyaanModel::where('kategori', 'Layanan')
-            ->with(['m_user', 't_pertanyaan_detail']) // Relasi detail pertanyaan
+        $pertanyaan = PertanyaanLanjutModel::where('kategori', 'layanan')
+            ->with(['m_user', 't_pertanyaan_detail_lanjut']) // Relasi detail pertanyaan
             ->get();
 
-        return view('daftarPertanyaan.daftarLayanan', [
+        return view('pengajuanPertanyaan.daftarlayanan', [
             'breadcrumb' => $breadcrumb,
             'page' => $page,
             'activeMenu' => $activeMenu,
-            'pertanyaan' => $pertanyaan // Kirim data ke view
+            'pertanyaan' => $pertanyaan,
         ]);
     }
 
     public function tolakPertanyaanLayanan(Request $request, $id)
     {
-        $pertanyaan = PertanyaanModel::with(['t_pertanyaan_detail', 'm_user'])->findOrFail($id);
+        $pertanyaan = PertanyaanLanjutModel::with(['t_pertanyaan_detail_lanjut', 'm_user'])->findOrFail($id);
         $user = $pertanyaan->m_user; // Mendapatkan data pengguna terkait
 
         $pertanyaan->status = 'Ditolak';
@@ -211,7 +203,7 @@ class DaftarPertanyaanController extends Controller
         $pertanyaan->save();
 
         // Kirim email
-        Mail::to($user->email)->send(new PertanyaanNotificationMail(
+        Mail::to($user->email)->send(new HasilPertanyaanMail(
             $user->nama,
             'Ditolak',
             $pertanyaan->kategori,
@@ -225,48 +217,44 @@ class DaftarPertanyaanController extends Controller
         ]);
     }
 
-    public function setujuiPertanyaanLayanan($id)
+    public function setujuiPertanyaanLayanan(Request $request, $id)
     {
         try {
             // Ambil data pertanyaan beserta detail dan user
-            $pertanyaan = PertanyaanModel::with(['t_pertanyaan_detail', 'm_user'])->findOrFail($id);
+            $pertanyaan = PertanyaanLanjutModel::with(['t_pertanyaan_detail_lanjut', 'm_user'])->findOrFail($id);
+            $user = $pertanyaan->m_user;
+
+            // Update jawaban untuk setiap pertanyaan detail
+            $detailPertanyaan = [];
+            if ($request->has('jawaban')) {
+                foreach ($request->jawaban as $jawaban) {
+                    // Update jawaban
+                    DetailPertanyaanLanjutModel::where('detail_pertanyaan_lanjut_id', $jawaban['id'])
+                        ->update(['jawaban' => $jawaban['jawaban']]);
+
+                    // Simpan detail untuk email
+                    $detail = DetailPertanyaanLanjutModel::find($jawaban['id']);
+                    $detailPertanyaan[] = [
+                        'pertanyaan' => $detail->pertanyaan,
+                        'jawaban' => $jawaban['jawaban'] // Gunakan jawaban yang baru diupdate
+                    ];
+                }
+            }
 
             // Update status pertanyaan
             $pertanyaan->status = 'Disetujui';
             $pertanyaan->updated_at = now();
             $pertanyaan->save();
 
-            // Buat record baru di t_pertanyaan_lanjut
-            $pertanyaanLanjut = PertanyaanLanjutModel::create([
-                'user_id' => $pertanyaan->user_id,
-                'kategori' => $pertanyaan->kategori,
-                'status_pemohon' => $pertanyaan->status_pemohon,
-                'status' => 'Diproses',
-                'created_at' => now(),
-                'updated_at' => now()
-            ]);
-
-            // Salin semua detail pertanyaan ke t_pertanyaan_detail_lanjut
-            foreach ($pertanyaan->t_pertanyaan_detail as $detail) {
-                DetailPertanyaanLanjutModel::create([
-                    'pertanyaan_lanjut_id' => $pertanyaanLanjut->pertanyaan_lanjut_id,
-                    'pertanyaan' => $detail->pertanyaan,
-                    'created_at' => now(),
-                    'updated_at' => now()
-                ]);
-            }
-
-            // Buat notifikasi
-            NotifikasiMPUModel::create([
-                'user_id' => $pertanyaan->user_id,
-                'kategori' => 'pertanyaan',
-                'permohonan_lanjut_id' => null,
-                'pertanyaan_lanjut_id' => $pertanyaanLanjut->pertanyaan_lanjut_id,
-                'pesan' => $pertanyaan->m_user->nama . ' Menyetujui Pertanyaan ' . $pertanyaan->kategori,
-                'sudah_dibaca' => null,
-                'created_at' => now(),
-                'updated_at' => now()
-            ]);
+            // Kirim email notifikasi dengan data yang sudah diupdate
+            Mail::to($user->email)->send(new HasilPertanyaanMail(
+                $user->nama,
+                'Disetujui',
+                $pertanyaan->kategori,
+                $pertanyaan->status_pemohon,
+                null,
+                $detailPertanyaan
+            ));
 
             return response()->json([
                 'success' => true,
@@ -284,14 +272,14 @@ class DaftarPertanyaanController extends Controller
     {
         try {
             // Ambil data pertanyaan berdasarkan ID
-            $pertanyaan = PertanyaanModel::findOrFail($id);
+            $pertanyaan = PertanyaanLanjutModel::findOrFail($id);
 
             // Update nilai deleted_at pada t_pertanyaan
             $pertanyaan->deleted_at = Carbon::now();
             $pertanyaan->save();
 
             // Update nilai deleted_at untuk semua detail yang berelasi
-            DetailPertanyaanModel::where('pertanyaan_id', $id)
+            DetailPertanyaanLanjutModel::where('pertanyaan_lanjut_id', $id)
                 ->update(['deleted_at' => Carbon::now()]);
 
             return response()->json(['success' => true, 'message' => 'Pertanyaan dan detail berhasil dihapus']);
@@ -312,14 +300,14 @@ class DaftarPertanyaanController extends Controller
             'title' => 'Daftar Pertanyaan'
         ];
 
-        $activeMenu = 'daftar_pertanyaan'; // Set the active menu
+        $activeMenu = 'pengajuan_pertanyaan'; // Set the active menu
 
         // Ambil data pertanyaan beserta detailnya
-        $pertanyaan = PertanyaanModel::where('kategori', 'Teknis')
-            ->with(['m_user', 't_pertanyaan_detail']) // Relasi detail pertanyaan
+        $pertanyaan = PertanyaanLanjutModel::where('kategori', 'Teknis')
+            ->with(['m_user', 't_pertanyaan_detail_lanjut']) // Relasi detail pertanyaan
             ->get();
 
-        return view('daftarPertanyaan.daftarTeknis', [
+        return view('pengajuanPertanyaan.daftarTeknis', [
             'breadcrumb' => $breadcrumb,
             'page' => $page,
             'activeMenu' => $activeMenu,
@@ -329,7 +317,7 @@ class DaftarPertanyaanController extends Controller
 
     public function tolakPertanyaanTeknis(Request $request, $id)
     {
-        $pertanyaan = PertanyaanModel::with(['t_pertanyaan_detail', 'm_user'])->findOrFail($id);
+        $pertanyaan = PertanyaanLanjutModel::with(['t_pertanyaan_detail_lanjut', 'm_user'])->findOrFail($id);
         $user = $pertanyaan->m_user; // Mendapatkan data pengguna terkait
 
         $pertanyaan->status = 'Ditolak';
@@ -338,7 +326,7 @@ class DaftarPertanyaanController extends Controller
         $pertanyaan->save();
 
         // Kirim email
-        Mail::to($user->email)->send(new PertanyaanNotificationMail(
+        Mail::to($user->email)->send(new HasilPertanyaanMail(
             $user->nama,
             'Ditolak',
             $pertanyaan->kategori,
@@ -352,48 +340,44 @@ class DaftarPertanyaanController extends Controller
         ]);
     }
 
-    public function setujuiPertanyaanTeknis($id)
+    public function setujuiPertanyaanTeknis(Request $request, $id)
     {
         try {
             // Ambil data pertanyaan beserta detail dan user
-            $pertanyaan = PertanyaanModel::with(['t_pertanyaan_detail', 'm_user'])->findOrFail($id);
+            $pertanyaan = PertanyaanLanjutModel::with(['t_pertanyaan_detail_lanjut', 'm_user'])->findOrFail($id);
+            $user = $pertanyaan->m_user;
+
+            // Update jawaban untuk setiap pertanyaan detail
+            $detailPertanyaan = [];
+            if ($request->has('jawaban')) {
+                foreach ($request->jawaban as $jawaban) {
+                    // Update jawaban
+                    DetailPertanyaanLanjutModel::where('detail_pertanyaan_lanjut_id', $jawaban['id'])
+                        ->update(['jawaban' => $jawaban['jawaban']]);
+
+                    // Simpan detail untuk email
+                    $detail = DetailPertanyaanLanjutModel::find($jawaban['id']);
+                    $detailPertanyaan[] = [
+                        'pertanyaan' => $detail->pertanyaan,
+                        'jawaban' => $jawaban['jawaban'] // Gunakan jawaban yang baru diupdate
+                    ];
+                }
+            }
 
             // Update status pertanyaan
             $pertanyaan->status = 'Disetujui';
             $pertanyaan->updated_at = now();
             $pertanyaan->save();
 
-            // Buat record baru di t_pertanyaan_lanjut
-            $pertanyaanLanjut = PertanyaanLanjutModel::create([
-                'user_id' => $pertanyaan->user_id,
-                'kategori' => $pertanyaan->kategori,
-                'status_pemohon' => $pertanyaan->status_pemohon,
-                'status' => 'Diproses',
-                'created_at' => now(),
-                'updated_at' => now()
-            ]);
-
-            // Salin semua detail pertanyaan ke t_pertanyaan_detail_lanjut
-            foreach ($pertanyaan->t_pertanyaan_detail as $detail) {
-                DetailPertanyaanLanjutModel::create([
-                    'pertanyaan_lanjut_id' => $pertanyaanLanjut->pertanyaan_lanjut_id,
-                    'pertanyaan' => $detail->pertanyaan,
-                    'created_at' => now(),
-                    'updated_at' => now()
-                ]);
-            }
-
-            // Buat notifikasi
-            NotifikasiMPUModel::create([
-                'user_id' => $pertanyaan->user_id,
-                'kategori' => 'pertanyaan',
-                'permohonan_lanjut_id' => null,
-                'pertanyaan_lanjut_id' => $pertanyaanLanjut->pertanyaan_lanjut_id,
-                'pesan' => $pertanyaan->m_user->nama . ' Menyetujui Pertanyaan ' . $pertanyaan->kategori,
-                'sudah_dibaca' => null,
-                'created_at' => now(),
-                'updated_at' => now()
-            ]);
+            // Kirim email notifikasi dengan data yang sudah diupdate
+            Mail::to($user->email)->send(new HasilPertanyaanMail(
+                $user->nama,
+                'Disetujui',
+                $pertanyaan->kategori,
+                $pertanyaan->status_pemohon,
+                null,
+                $detailPertanyaan
+            ));
 
             return response()->json([
                 'success' => true,
@@ -407,18 +391,19 @@ class DaftarPertanyaanController extends Controller
             ], 500);
         }
     }
+    
     public function hapusPertanyaanTeknis($id)
     {
         try {
             // Ambil data pertanyaan berdasarkan ID
-            $pertanyaan = PertanyaanModel::findOrFail($id);
+            $pertanyaan = PertanyaanLanjutModel::findOrFail($id);
 
             // Update nilai deleted_at pada t_pertanyaan
             $pertanyaan->deleted_at = Carbon::now();
             $pertanyaan->save();
 
             // Update nilai deleted_at untuk semua detail yang berelasi
-            DetailPertanyaanModel::where('pertanyaan_id', $id)
+            DetailPertanyaanLanjutModel::where('pertanyaan_lanjut_id', $id)
                 ->update(['deleted_at' => Carbon::now()]);
 
             return response()->json(['success' => true, 'message' => 'Pertanyaan dan detail berhasil dihapus']);

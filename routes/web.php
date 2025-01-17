@@ -7,8 +7,13 @@ use App\Http\Controllers\DashboardAdminController;
 use App\Http\Controllers\DashboardMPUController;
 use App\Http\Controllers\DashboardRespondenController;
 use App\Http\Controllers\DashboardVerifikatorController;
+use App\Http\Controllers\HasilPermohonanController;
+use App\Http\Controllers\HasilPertanyaanController;
 use App\Http\Controllers\NotifikasiControllerADM;
+use App\Http\Controllers\NotifikasiControllerMPU;
 use App\Http\Controllers\NotifikasiControllerVFR;
+use App\Http\Controllers\PengajuanPermohonanController;
+use App\Http\Controllers\PengajuanPertanyaanController;
 use App\Http\Controllers\PermohonanController;
 use App\Http\Controllers\PertanyaanController;
 use App\Http\Controllers\ProfileController;
@@ -30,6 +35,9 @@ Route::pattern('id', '[0-9]+'); // Artinya: Ketika ada parameter {id}, maka haru
 Route::get('login', [AuthController::class, 'login'])->name('login');
 Route::post('login', [AuthController::class, 'postlogin']);
 Route::get('logout', [AuthController::class, 'logout'])->middleware('auth');
+
+Route::get('register', [AuthController::class, 'register'])->name('register');
+Route::post('register', [AuthController::class, 'postRegister']);
 
 // Group route yang memerlukan autentikasi
 Route::middleware('auth')->group(function () {
@@ -86,35 +94,89 @@ Route::middleware('auth')->group(function () {
         Route::delete('/hapus/{id}', [NotifikasiControllerADM::class, 'hapusNotifikasi'])->name('notifAdmin.hapus');
     });
 
+    Route::group(['prefix' => 'notifMPU', 'middleware' => ['authorize:MPU']], function () {
+        Route::get('/', [NotifikasiControllerMPU::class, 'index']);
+        Route::get('/notif_permohonan', [NotifikasiControllerMPU::class, 'notifikasiPermohonan']);
+        Route::get('/notif_pertanyaan', [NotifikasiControllerMPU::class, 'notifikasiPertanyaan']);
+        Route::post('/tandai-dibaca/{id}', [NotifikasiControllerMPU::class, 'tandaiDibaca'])->name('notifAdmin.tandaiDibaca');
+        Route::delete('/hapus/{id}', [NotifikasiControllerMPU::class, 'hapusNotifikasi'])->name('notifAdmin.hapus');
+    });
+
     Route::group(['prefix' => 'daftarPermohonan', 'middleware' => ['authorize:VFR']], function () {
         Route::get('/', [DaftarPermohonanController::class, 'index']);
         Route::get('/daftarAkademik', [DaftarPermohonanController::class, 'daftarAkademik']);
-        Route::post('/setujui/{id}', [DaftarPermohonanController::class, 'setujuiPermohonanAkademik'])->name('daftarPermohonan.setujui');
-        Route::post('/tolak/{id}', [DaftarPermohonanController::class, 'tolakPermohonanAkademik'])->name('daftarPermohonan.tolak');
-        Route::post('/hapus/{id}', [DaftarPermohonanController::class, 'hapusPermohonanAkademik'])->name('daftarPermohonan.hapus');
+        Route::post('/akademik/setujui/{id}', [DaftarPermohonanController::class, 'setujuiPermohonanAkademik'])->name('daftarPermohonan.akademik.setujui');
+        Route::post('/akademik/tolak/{id}', [DaftarPermohonanController::class, 'tolakPermohonanAkademik'])->name('daftarPermohonan.akademik.tolak');
+        Route::post('/akademik/hapus/{id}', [DaftarPermohonanController::class, 'hapusPermohonanAkademik'])->name('daftarPermohonan.akademik.hapus');
         Route::get('/daftarLayanan', [DaftarPermohonanController::class, 'daftarLayanan']);
-        Route::post('/setujui/{id}', [DaftarPermohonanController::class, 'setujuiPermohonanLayanan'])->name('daftarPermohonan.setujui');
-        Route::post('/tolak/{id}', [DaftarPermohonanController::class, 'tolakPermohonanLayanan'])->name('daftarPermohonan.tolak');
-        Route::post('/hapus/{id}', [DaftarPermohonanController::class, 'hapusPermohonanLayanan'])->name('daftarPermohonan.hapus');
+        Route::post('/layanan/setujui/{id}', [DaftarPermohonanController::class, 'setujuiPermohonanLayanan'])->name('daftarPermohonan.layanan.setujui');
+        Route::post('/layanan/tolak/{id}', [DaftarPermohonanController::class, 'tolakPermohonanLayanan'])->name('daftarPermohonan.layanan.tolak');
+        Route::post('/layanan/hapus/{id}', [DaftarPermohonanController::class, 'hapusPermohonanLayanan'])->name('daftarPermohonan.layanan.hapus');
         Route::get('/daftarTeknis', [DaftarPermohonanController::class, 'daftarTeknis']);
-        Route::post('/setujui/{id}', [DaftarPermohonanController::class, 'setujuiPermohonanTeknis'])->name('daftarPermohonan.setujui');
-        Route::post('/tolak/{id}', [DaftarPermohonanController::class, 'tolakPermohonanTeknis'])->name('daftarPermohonan.tolak');
-        Route::post('/hapus/{id}', [DaftarPermohonanController::class, 'hapusPermohonanTeknis'])->name('daftarPermohonan.hapus');
-    });    
+        Route::post('/teknis/setujui/{id}', [DaftarPermohonanController::class, 'setujuiPermohonanTeknis'])->name('daftarPermohonan.teknis.setujui');
+        Route::post('/teknis/tolak/{id}', [DaftarPermohonanController::class, 'tolakPermohonanTeknis'])->name('daftarPermohonan.teknis.tolak');
+        Route::post('/teknis/hapus/{id}', [DaftarPermohonanController::class, 'hapusPermohonanTeknis'])->name('daftarPermohonan.teknis.hapus');
+    });
 
     Route::group(['prefix' => 'daftarPertanyaan', 'middleware' => ['authorize:VFR']], function () {
         Route::get('/', [DaftarPertanyaanController::class, 'index']);
         Route::get('/daftarAkademik', [DaftarPertanyaanController::class, 'daftarAkademik']);
-        Route::post('/setujui/{id}', [DaftarPertanyaanController::class, 'setujuiPertanyaanAkademik'])->name('daftarPertanyaan.setujui');
-        Route::post('/tolak/{id}', [DaftarPertanyaanController::class, 'tolakPertanyaanAkademik'])->name('daftarPertanyaan.tolak');
-        Route::post('/hapus/{id}', [DaftarPertanyaanController::class, 'hapusPertanyaanAkademik'])->name('daftarPertanyaan.hapus');
+        Route::post('/akademik/setujui/{id}', [DaftarPertanyaanController::class, 'setujuiPertanyaanAkademik']);
+        Route::post('/akademik/tolak/{id}', [DaftarPertanyaanController::class, 'tolakPertanyaanAkademik']);
+        Route::post('/akademik/hapus/{id}', [DaftarPertanyaanController::class, 'hapusPertanyaanAkademik']);
         Route::get('/daftarLayanan', [DaftarPertanyaanController::class, 'daftarLayanan']);
-        Route::post('/setujui/{id}', [DaftarPertanyaanController::class, 'setujuiPertanyaanLayanan'])->name('daftarPertanyaan.setujui');
-        Route::post('/tolak/{id}', [DaftarPertanyaanController::class, 'tolakPertanyaanLayanan'])->name('daftarPertanyaan.tolak');
-        Route::post('/hapus/{id}', [DaftarPertanyaanController::class, 'hapusPertanyaanLayanan'])->name('daftarPertanyaan.hapus');
+        Route::post('/layanan/setujui/{id}', [DaftarPertanyaanController::class, 'setujuiPertanyaanLayanan']);
+        Route::post('/layanan/tolak/{id}', [DaftarPertanyaanController::class, 'tolakPertanyaanLayanan']);
+        Route::post('/layanan/hapus/{id}', [DaftarPertanyaanController::class, 'hapusPertanyaanLayanan']);
         Route::get('/daftarTeknis', [DaftarPertanyaanController::class, 'daftarTeknis']);
-        Route::post('/setujui/{id}', [DaftarPertanyaanController::class, 'setujuiPertanyaanTeknis'])->name('daftarPertanyaan.setujui');
-        Route::post('/tolak/{id}', [DaftarPertanyaanController::class, 'tolakPertanyaanTeknis'])->name('daftarPertanyaan.tolak');
-        Route::post('/hapus/{id}', [DaftarPertanyaanController::class, 'hapusPertanyaanTeknis'])->name('daftarPertanyaan.hapus');
-    });    
+        Route::post('/teknis/setujui/{id}', [DaftarPertanyaanController::class, 'setujuiPertanyaanTeknis']);
+        Route::post('/teknis/tolak/{id}', [DaftarPertanyaanController::class, 'tolakPertanyaanTeknis']);
+        Route::post('/teknis/hapus/{id}', [DaftarPertanyaanController::class, 'hapusPertanyaanTeknis']);
+    });
+
+    Route::group(['prefix' => 'pengajuanPermohonan', 'middleware' => ['authorize:MPU']], function () {
+        Route::get('/', [PengajuanPermohonanController::class, 'index']);
+        Route::get('/daftarAkademik', [PengajuanPermohonanController::class, 'daftarAkademik']);
+        Route::post('/akademik/setujui/{id}', [PengajuanPermohonanController::class, 'setujuiPermohonanAkademik']);
+        Route::post('/tolak/{id}', [PengajuanPermohonanController::class, 'tolakPermohonanAkademik'])->name('pengajuanPermohonan.tolak');
+        Route::post('/hapus/{id}', [PengajuanPermohonanController::class, 'hapusPermohonanAkademik'])->name('pengajuanPermohonan.hapus');
+        Route::get('/daftarLayanan', [PengajuanPermohonanController::class, 'daftarLayanan']);
+        Route::post('/layanan/setujui/{id}', [PengajuanPermohonanController::class, 'setujuiPermohonanLayanan']);
+        Route::post('/tolak/{id}', [PengajuanPermohonanController::class, 'tolakPermohonanLayanan'])->name('pengajuanPermohonan.tolak');
+        Route::post('/hapus/{id}', [PengajuanPermohonanController::class, 'hapusPermohonanLayanan'])->name('pengajuanPermohonan.hapus');
+        Route::get('/daftarTeknis', [PengajuanPermohonanController::class, 'daftarTeknis']);
+        Route::post('/teknis/setujui/{id}', [PengajuanPermohonanController::class, 'setujuiPermohonanTeknis']);
+        Route::post('/tolak/{id}', [PengajuanPermohonanController::class, 'tolakPermohonanTeknis'])->name('pengajuanPermohonan.tolak');
+        Route::post('/hapus/{id}', [PengajuanPermohonanController::class, 'hapusPermohonanTeknis'])->name('pengajuanPermohonan.hapus');
+    }); 
+
+    Route::group(['prefix' => 'pengajuanPertanyaan', 'middleware' => ['authorize:MPU']], function () {
+        Route::get('/', [PengajuanPertanyaanController::class, 'index']);
+        Route::get('/daftarAkademik', [PengajuanPertanyaanController::class, 'daftarAkademik']);
+        Route::post('/akademik/setujui/{id}', [PengajuanPertanyaanController::class, 'setujuiPertanyaanAkademik']);
+        Route::post('/akademik/tolak/{id}', [PengajuanPertanyaanController::class, 'tolakPertanyaanAkademik']);
+        Route::post('/akademik/hapus/{id}', [PengajuanPertanyaanController::class, 'hapusPertanyaanAkademik']);
+        Route::get('/daftarLayanan', [PengajuanPertanyaanController::class, 'daftarLayanan']);
+        Route::post('/layanan/setujui/{id}', [PengajuanPertanyaanController::class, 'setujuiPertanyaanLayanan']);
+        Route::post('/layanan/tolak/{id}', [PengajuanPertanyaanController::class, 'tolakPertanyaanLayanan']);
+        Route::post('/layanan/hapus/{id}', [PengajuanPertanyaanController::class, 'hapusPertanyaanLayanan']);
+        Route::get('/daftarTeknis', [PengajuanPertanyaanController::class, 'daftarTeknis']);
+        Route::post('/teknis/setujui/{id}', [PengajuanPertanyaanController::class, 'setujuiPertanyaanTeknis']);
+        Route::post('/teknis/tolak/{id}', [PengajuanPertanyaanController::class, 'tolakPertanyaanTeknis']);
+        Route::post('/teknis/hapus/{id}', [PengajuanPertanyaanController::class, 'hapusPertanyaanTeknis']);
+    });
+
+    Route::group(['prefix' => 'hasilPermohonan', 'middleware' => ['authorize:RPN']], function () {
+        Route::get('/', [HasilPermohonanController::class, 'index']);
+        Route::get('/daftarAkademik', [HasilPermohonanController::class, 'daftarAkademik']);
+        Route::get('/daftarLayanan', [HasilPermohonanController::class, 'daftarLayanan']);
+        Route::get('/daftarTeknis', [HasilPermohonanController::class, 'daftarTeknis']);
+    }); 
+
+    Route::group(['prefix' => 'hasilPertanyaan', 'middleware' => ['authorize:RPN']], function () {
+        Route::get('/', [HasilPertanyaanController::class, 'index']);
+        Route::get('/daftarAkademik', [HasilPertanyaanController::class, 'daftarAkademik']);
+        Route::get('/daftarLayanan', [HasilPertanyaanController::class, 'daftarLayanan']);
+        Route::get('/daftarTeknis', [HasilPertanyaanController::class, 'daftarTeknis']);
+    }); 
 });
