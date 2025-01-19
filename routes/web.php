@@ -9,6 +9,7 @@ use App\Http\Controllers\DashboardRespondenController;
 use App\Http\Controllers\DashboardVerifikatorController;
 use App\Http\Controllers\HasilPermohonanController;
 use App\Http\Controllers\HasilPertanyaanController;
+use App\Http\Controllers\LevelController;
 use App\Http\Controllers\NotifikasiControllerADM;
 use App\Http\Controllers\NotifikasiControllerMPU;
 use App\Http\Controllers\NotifikasiControllerVFR;
@@ -17,6 +18,7 @@ use App\Http\Controllers\PengajuanPertanyaanController;
 use App\Http\Controllers\PermohonanController;
 use App\Http\Controllers\PertanyaanController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -182,5 +184,22 @@ Route::middleware('auth')->group(function () {
         Route::get('/daftarLayanan', [HasilPertanyaanController::class, 'daftarLayanan']);
         Route::get('/daftarTeknis', [HasilPertanyaanController::class, 'daftarTeknis']);
         Route::post('/tandai-dibaca/{id}', [HasilPertanyaanController::class, 'tandaiDibaca'])->name('hasilPertanyaan.tandaiDibaca');
-    }); 
+    });
+    
+    Route::group(['prefix' => 'level', 'middleware' => 'authorize:ADM'], function () {
+        Route::get('/', [LevelController::class, 'index']);         
+        Route::post('/list', [LevelController::class, 'list']);     
+    });
+
+    Route::group(['prefix' => 'user', 'middleware' => 'authorize:ADM'], function () {
+        Route::get('/', [UserController::class, 'index']);         // menampilkan halaman awal user
+        Route::post('/list', [UserController::class, 'list']);     // menampilkan data user dalam bentuk json untuk datables
+        Route::get('/create_ajax', [UserController::class, 'create_ajax']); // Menampilkan halaman form tambah user Ajax
+        Route::post('/ajax', [UserController::class, 'store_ajax']);     // Menyimpan data user baru Ajax
+        Route::get('/{id}/show_ajax', [UserController::class, 'show_ajax']);       // menampilkan detail user
+        Route::get('/{id}/edit_ajax', [UserController::class, 'edit_ajax']); // Menampilkan halaman form edit user Ajax
+        Route::put('/{id}/update_ajax', [UserController::class, 'update_ajax']); // Menyimpan perubahan data user Ajax
+        Route::get('/{id}/delete_ajax', [UserController::class, 'confirm_ajax']); // Untuk menampilkan form konfirmasi delete user Ajax
+        Route::delete('/{id}/delete_ajax', [UserController::class, 'delete_ajax']); // Untuk menghapus data user Ajax
+    });
 });
