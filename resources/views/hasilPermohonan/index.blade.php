@@ -9,16 +9,19 @@ use Illuminate\Support\Facades\Auth;
 $jumlahDaftarAkademik = PermohonanLanjutModel::where('kategori', 'Akademik')
     ->where('user_id', Auth::id())
     ->where('status', 'Disetujui')
+    ->whereNull('sudah_dibaca')
     ->count();
 
 $jumlahDaftarLayanan = PermohonanLanjutModel::where('kategori', 'Layanan')
     ->where('user_id', Auth::id())
     ->where('status', 'Disetujui')
+    ->whereNull('sudah_dibaca')
     ->count();
 
 $jumlahDaftarTeknis = PermohonanLanjutModel::where('kategori', 'Teknis')
     ->where('user_id', Auth::id())
     ->where('status', 'Disetujui')
+    ->whereNull('sudah_dibaca')
     ->count();
 ?>
 

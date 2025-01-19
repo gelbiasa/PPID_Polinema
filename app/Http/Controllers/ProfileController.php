@@ -4,7 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Models\UserModel;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 
 class ProfileController extends Controller
@@ -27,6 +29,59 @@ class ProfileController extends Controller
             'page' => $page,
             'activeMenu' => $activeMenu
         ]);
+    }
+
+    public function update_profile(Request $request)
+    {
+        $request->validate([
+            'foto_profil' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:5120', // Validasi file gambar
+        ]);
+
+        // Mendapatkan ID pengguna yang sedang login
+        $userId = Auth::id();
+
+        // Mengambil pengguna berdasarkan ID menggunakan UserModel
+        $user = UserModel::find($userId);
+
+        // Jika ada file gambar yang diupload
+        if ($request->hasFile('foto_profil')) {
+            // Hapus foto profil lama jika ada
+            if ($user->foto_profil && Storage::exists('public/' . $user->foto_profil)) {
+                Storage::delete('public/' . $user->foto_profil);
+            }
+
+            // Simpan foto profil baru
+            $path = $request->file('foto_profil')->store('gambar', 'public');
+            $user->foto_profil = $path;
+        }
+
+        // Simpan perubahan ke database
+        $user->save();
+
+        return redirect()->back()->with('success', 'Foto profil berhasil diperbarui');
+    }
+
+    public function delete_profile()
+    {
+        // Mendapatkan ID pengguna yang sedang login
+        $userId = Auth::id();
+
+        // Mengambil pengguna berdasarkan ID menggunakan UserModel
+        $user = UserModel::find($userId);
+
+        // Jika pengguna memiliki foto profil, hapus dari storage
+        if ($user->foto_profil && Storage::exists('public/' . $user->foto_profil)) {
+            Storage::delete('public/' . $user->foto_profil);
+        }
+
+        // Set foto_profil menjadi null atau default
+        $user->foto_profil = null;
+
+        // Simpan perubahan ke database
+        $user->save();
+
+        // Redirect kembali dengan pesan sukses
+        return redirect()->back()->with('success', 'Foto profil berhasil dihapus');
     }
 
     public function update_pengguna(Request $request, string $id)

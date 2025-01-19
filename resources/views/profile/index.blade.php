@@ -10,6 +10,19 @@
                 </div>
 
                 <div class="card-body">
+                    <!-- Profile Picture Section -->
+                    <div class="text-center mb-4">
+                        <img id="profile-pic" src="{{ Auth::user()->foto_profil ? asset('storage/' . Auth::user()->foto_profil) : asset('user.png') }}" class="rounded-circle" width="200" height="200" alt="Profile Picture">
+                        <div class="jarak"></div>
+                        <div class="mt-2 mb-5">
+                            <button type="button" class="btn btn-sm btn-primary" data-toggle="modal" data-target="#editProfileModal">
+                                <i class="fas fa-edit"></i> Ganti Foto
+                            </button>
+                            <button type="button" class="btn btn-sm btn-danger" data-toggle="modal" data-target="#deleteProfileModal">
+                                <i class="fas fa-trash-alt"></i> Hapus Foto
+                            </button>                            
+                        </div>
+                    </div>
 
                     <!-- Tab Navigation -->
                     <div class="jarak-menu"></div>
@@ -100,6 +113,23 @@
                             </div>
                         </div>
                     </div>
+
+                    <!-- Modal for changing profile picture -->
+                    <div class="modal fade" id="editProfileModal" tabindex="-1" aria-labelledby="editProfileModalLabel" aria-hidden="true">
+                        <div class="modal-dialog modal-lg">
+                            <div class="modal-body">
+                                @include('profile.edit_profile')
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Modal for deleting profile picture -->
+                    <div class="modal fade" id="deleteProfileModal" tabindex="-1" aria-labelledby="deleteProfileModalLabel" aria-hidden="true">
+                        <div class="modal-dialog modal-lg">
+                            <div class="modal-body">
+                                @include('profile.delete_profile')
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -118,25 +148,15 @@
         });
 
         @if(session('success'))
-            Swal.fire({
-                icon: 'success',
-                title: 'Berhasil!',
-                text: '{{ session('success') }}',
-                timer: 3000,
-                showConfirmButton: false
-            });
+            alert('{{ session('success') }}');
         @endif
 
         @if(session('error_type') === 'current_password')
-            Swal.fire({
-                icon: 'error',
-                title: 'Error!',
-                text: 'Password lama tidak sesuai',
-            });
+            alert('Password lama tidak sesuai');
         @endif
 
         @if(session('error_type') === 'new_password' || session('error_type') === 'new_password_confirmation')
-            $('#password-tab').tab('show');
+            $('#password-tab').tab('show'); // Aktifkan tab "Ubah Password"
         @endif
     });
 </script>
@@ -174,7 +194,7 @@
     }
 
     .jarak-menu {
-    margin-top: 20px;
+    margin-top: 80px;
     }
 </style>
     

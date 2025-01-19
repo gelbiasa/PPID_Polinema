@@ -95,8 +95,8 @@ class DaftarPermohonanController extends Controller
             $permohonan->save();
 
             // Buat permohonan lanjut
-            PermohonanLanjutModel::create([
-                'permohonan_lanjut_id' => $permohonan->permohonan_id,
+            $permohonanLanjut = PermohonanLanjutModel::create([
+                'permohonan_lanjut_id' => $permohonan->permohonan_lanjut_id,
                 'user_id' => $permohonan->user_id,
                 'kategori' => $permohonan->kategori,
                 'status_pemohon' => $permohonan->status_pemohon,
@@ -112,7 +112,7 @@ class DaftarPermohonanController extends Controller
             NotifikasiMPUModel::create([
                 'user_id' => $permohonan->user_id,
                 'kategori' => 'permohonan',
-                'permohonan_lanjut_id' => $permohonan->permohonan_id,
+                'permohonan_lanjut_id' => $permohonanLanjut->permohonan_lanjut_id,
                 'pertanyaan_lanjut_id' => null,
                 'pesan' => $permohonan->m_user->nama . ' Mengajukan Permohonan ' . $permohonan->kategori,
                 'sudah_dibaca' => null,
@@ -203,8 +203,8 @@ class DaftarPermohonanController extends Controller
             $permohonan->save();
 
             // Buat permohonan lanjut
-            PermohonanLanjutModel::create([
-                'permohonan_lanjut_id' => $permohonan->permohonan_id,
+            $permohonanLanjut = PermohonanLanjutModel::create([
+                'permohonan_lanjut_id' => $permohonan->permohonan_lanjut_id,
                 'user_id' => $permohonan->user_id,
                 'kategori' => $permohonan->kategori,
                 'status_pemohon' => $permohonan->status_pemohon,
@@ -220,7 +220,7 @@ class DaftarPermohonanController extends Controller
             NotifikasiMPUModel::create([
                 'user_id' => $permohonan->user_id,
                 'kategori' => 'permohonan',
-                'permohonan_lanjut_id' => $permohonan->permohonan_id,
+                'permohonan_lanjut_id' => $permohonanLanjut->permohonan_lanjut_id,
                 'pertanyaan_lanjut_id' => null,
                 'pesan' => $permohonan->m_user->nama . ' Mengajukan Permohonan ' . $permohonan->kategori,
                 'sudah_dibaca' => null,
@@ -311,8 +311,8 @@ class DaftarPermohonanController extends Controller
             $permohonan->save();
 
             // Buat permohonan lanjut
-            PermohonanLanjutModel::create([
-                'permohonan_lanjut_id' => $permohonan->permohonan_id,
+            $permohonanLanjut = PermohonanLanjutModel::create([
+                'permohonan_lanjut_id' => $permohonan->permohonan_lanjut_id,
                 'user_id' => $permohonan->user_id,
                 'kategori' => $permohonan->kategori,
                 'status_pemohon' => $permohonan->status_pemohon,
@@ -328,7 +328,7 @@ class DaftarPermohonanController extends Controller
             NotifikasiMPUModel::create([
                 'user_id' => $permohonan->user_id,
                 'kategori' => 'permohonan',
-                'permohonan_lanjut_id' => $permohonan->permohonan_id,
+                'permohonan_lanjut_id' => $permohonanLanjut->permohonan_lanjut_id,
                 'pertanyaan_lanjut_id' => null,
                 'pesan' => $permohonan->m_user->nama . ' Mengajukan Permohonan ' . $permohonan->kategori,
                 'sudah_dibaca' => null,

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\PertanyaanLanjutModel;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -110,5 +111,14 @@ class HasilPertanyaanController extends Controller
             'activeMenu' => $activeMenu,
             'pertanyaan' => $pertanyaan,
         ]);
+    }
+
+    public function tandaiDibaca($id)
+    {
+        $notifikasi = PertanyaanLanjutModel::findOrFail($id);
+        $notifikasi->sudah_dibaca = Carbon::now();
+        $notifikasi->save();
+
+        return response()->json(['success' => true, 'message' => 'Notifikasi berhasil ditandai telah dibaca']);
     }
 }

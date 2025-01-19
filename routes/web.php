@@ -48,6 +48,8 @@ Route::middleware('auth')->group(function () {
 
     Route::group(['prefix' => 'profile'], function () {
         Route::get('/', [ProfileController::class, 'index']);
+        Route::post('/update_profile', [ProfileController::class, 'update_profile']);
+        Route::delete('/delete_profile', [ProfileController::class, 'delete_profile']);
         Route::put('/update_pengguna/{id}', [ProfileController::class, 'update_pengguna']);
         Route::put('/update_password/{id}', [ProfileController::class, 'update_password']);
     });
@@ -171,6 +173,7 @@ Route::middleware('auth')->group(function () {
         Route::get('/daftarAkademik', [HasilPermohonanController::class, 'daftarAkademik']);
         Route::get('/daftarLayanan', [HasilPermohonanController::class, 'daftarLayanan']);
         Route::get('/daftarTeknis', [HasilPermohonanController::class, 'daftarTeknis']);
+        Route::post('/tandai-dibaca/{id}', [HasilPermohonanController::class, 'tandaiDibaca'])->name('hasilPermohonan.tandaiDibaca');
     }); 
 
     Route::group(['prefix' => 'hasilPertanyaan', 'middleware' => ['authorize:RPN']], function () {
@@ -178,5 +181,6 @@ Route::middleware('auth')->group(function () {
         Route::get('/daftarAkademik', [HasilPertanyaanController::class, 'daftarAkademik']);
         Route::get('/daftarLayanan', [HasilPertanyaanController::class, 'daftarLayanan']);
         Route::get('/daftarTeknis', [HasilPertanyaanController::class, 'daftarTeknis']);
+        Route::post('/tandai-dibaca/{id}', [HasilPertanyaanController::class, 'tandaiDibaca'])->name('hasilPertanyaan.tandaiDibaca');
     }); 
 });

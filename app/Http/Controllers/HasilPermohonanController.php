@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\PermohonanLanjutModel;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -39,7 +40,7 @@ class HasilPermohonanController extends Controller
             'title' => 'Hasil Permohonan'
         ];
 
-        $activeMenu = 'pengajuan_permohonan';
+        $activeMenu = 'hasil_permohonan';
 
         // Get only approved requests for the logged-in user
         $permohonan = PermohonanLanjutModel::where('kategori', 'Akademik')
@@ -67,7 +68,7 @@ class HasilPermohonanController extends Controller
             'title' => 'Hasil Permohonan'
         ];
 
-        $activeMenu = 'pengajuan_permohonan';
+        $activeMenu = 'hasil_permohonan';
 
         // Get only approved requests for the logged-in user
         $permohonan = PermohonanLanjutModel::where('kategori', 'Layanan')
@@ -95,7 +96,7 @@ class HasilPermohonanController extends Controller
             'title' => 'Hasil Permohonan'
         ];
 
-        $activeMenu = 'pengajuan_permohonan';
+        $activeMenu = 'hasil_permohonan';
 
         // Get only approved requests for the logged-in user
         $permohonan = PermohonanLanjutModel::where('kategori', 'Teknis')
@@ -104,11 +105,20 @@ class HasilPermohonanController extends Controller
             ->with('m_user')
             ->get();
 
-        return view('hasilPermohonan.daftarLayanan', [
+        return view('hasilPermohonan.daftarTeknis', [
             'breadcrumb' => $breadcrumb,
             'page' => $page,
             'activeMenu' => $activeMenu,
             'permohonan' => $permohonan
         ]);
+    }
+
+    public function tandaiDibaca($id)
+    {
+        $notifikasi = PermohonanLanjutModel::findOrFail($id);
+        $notifikasi->sudah_dibaca = Carbon::now();
+        $notifikasi->save();
+
+        return response()->json(['success' => true, 'message' => 'Notifikasi berhasil ditandai telah dibaca']);
     }
 }

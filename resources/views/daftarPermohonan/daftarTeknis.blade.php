@@ -12,49 +12,64 @@
         <h3 class="card-title"><strong> Daftar Permohonan Teknis </strong></h3>
     </div>
     <div class="card-body">
-        @foreach($permohonan as $item)
-            <div class="custom-container" data-id="{{ $item->id }}" data-status="{{ $item->status }}" style="
-                            @if($item->status === 'Disetujui') background-color: lightgreen;
-                            @elseif($item->status === 'Ditolak') background-color: lightpink;
-                                @else background-color: lightblue; 
-                            @endif">
+        @php
+            $checkPermohonan = $permohonan->filter(function ($item) {
+                return $item->kategori === 'Teknis';
+            });
+        @endphp
 
-                <div class="info">
-                    <p>
-                        <strong>Nama:</strong> {{ $item->m_user->nama }} |
-                        <strong>Nomor Handphone:</strong> {{ $item->m_user->no_hp }} |
-                        <strong>Email:</strong> {{ $item->m_user->email }}
-                    </p>
-                    <p class="pemohon-info">
-                        <strong>Status pemohon:</strong> {{ $item->status_pemohon }} <br>
-                        <strong>Judul pemohon:</strong> {{ $item->judul_pemohon }}
-                    </p>
-                </div>
-                <button class="btn btn-primary badge-button toggle-detail">Lihat Detail</button>
+        @if($checkPermohonan->isEmpty())
+            <div class="d-flex flex-column align-items-center justify-content-center"
+                style="height: 200px; background-color: #fff3cd; border: 1px solid #856404; border-radius: 10px;">
+                <span style="font-size: 50px;">📭</span>
+                <p style="margin: 0; font-weight: bold; font-size: 18px; text-align: center;">Tidak ada Daftar
+                    Permohonan Teknis</p>
             </div>
-            <!-- Container Detail -->
-            <div class="detail-container" style="display: none;">
-                <div class="detail-content">
-                    <p><strong>Deskripsi:</strong> {{ $item->deskripsi }}</p>
-                    <p><strong>Dokumen Pendukung:</strong></p>
-                    <a href="{{ asset('storage/' . $item->dokumen_pendukung) }}" target="_blank"
-                        class="btn btn-info">Preview Dokumen</a>
-                    <div class="action-buttons">
-                        @if($item->status === 'Diproses')
-                            <button class="btn btn-warning btn-tolak tolak-permohonan" data-id="{{ $item->permohonan_id }}"
-                                data-nama="{{ $item->m_user->nama }}">Tolak</button>
-                            <button class="btn btn-success btn-setujui setujui-permohonan" data-id="{{ $item->permohonan_id }}"
-                                data-nama="{{ $item->m_user->nama }}">Setujui</button>
-                        @endif
-                        <button class="btn btn-danger btn-hapus hapus-permohonan" data-id="{{ $item->permohonan_id }}"
-                            data-nama="{{ $item->m_user->nama }}" data-status="{{ $item->status }}">
-                            Hapus
-                        </button>
+        @else
+            @foreach($permohonan as $item)
+                <div class="custom-container" data-id="{{ $item->id }}" data-status="{{ $item->status }}" style="
+                                    @if($item->status === 'Disetujui') background-color: lightgreen;
+                                    @elseif($item->status === 'Ditolak') background-color: lightpink;
+                                        @else background-color: lightblue; 
+                                    @endif">
 
+                    <div class="info">
+                        <p>
+                            <strong>Nama:</strong> {{ $item->m_user->nama }} |
+                            <strong>Nomor Handphone:</strong> {{ $item->m_user->no_hp }} |
+                            <strong>Email:</strong> {{ $item->m_user->email }}
+                        </p>
+                        <p class="pemohon-info">
+                            <strong>Status pemohon:</strong> {{ $item->status_pemohon }} <br>
+                            <strong>Judul pemohon:</strong> {{ $item->judul_pemohon }}
+                        </p>
+                    </div>
+                    <button class="btn btn-primary badge-button toggle-detail">Lihat Detail</button>
+                </div>
+                <!-- Container Detail -->
+                <div class="detail-container" style="display: none;">
+                    <div class="detail-content">
+                        <p><strong>Deskripsi:</strong> {{ $item->deskripsi }}</p>
+                        <p><strong>Dokumen Pendukung:</strong></p>
+                        <a href="{{ asset('storage/' . $item->dokumen_pendukung) }}" target="_blank"
+                            class="btn btn-info">Preview Dokumen</a>
+                        <div class="action-buttons">
+                            @if($item->status === 'Diproses')
+                                <button class="btn btn-warning btn-tolak tolak-permohonan" data-id="{{ $item->permohonan_id }}"
+                                    data-nama="{{ $item->m_user->nama }}">Tolak</button>
+                                <button class="btn btn-success btn-setujui setujui-permohonan" data-id="{{ $item->permohonan_id }}"
+                                    data-nama="{{ $item->m_user->nama }}">Setujui</button>
+                            @endif
+                            <button class="btn btn-danger btn-hapus hapus-permohonan" data-id="{{ $item->permohonan_id }}"
+                                data-nama="{{ $item->m_user->nama }}" data-status="{{ $item->status }}">
+                                Hapus
+                            </button>
+
+                        </div>
                     </div>
                 </div>
-            </div>
-        @endforeach
+            @endforeach
+        @endif
     </div>
 </div>
 

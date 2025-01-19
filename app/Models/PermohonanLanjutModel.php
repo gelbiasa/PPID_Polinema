@@ -22,6 +22,7 @@ class PermohonanLanjutModel extends Model
         'status', 
         'jawaban',
         'alasan_penolakan', 
+        'sudah_dibaca',
         'created_at', 
         'updated_at', 
         'deleted_at'

@@ -12,35 +12,107 @@
         <h3 class="card-title"><strong> Hasil Permohonan Layanan </strong></h3>
     </div>
     <div class="card-body">
-        @foreach($permohonan as $item)
-            <div class="custom-container" data-id="{{ $item->id }}" data-status="{{ $item->status }}">
-                <div class="info">
-                    <p>
-                        <strong>Nama:</strong> {{ $item->m_user->nama }} |
-                        <strong>Nomor Handphone:</strong> {{ $item->m_user->no_hp }} |
-                        <strong>Email:</strong> {{ $item->m_user->email }}
-                    </p>
-                    <p class="pemohon-info">
-                        <strong>Status pemohon:</strong> {{ $item->status_pemohon }} <br>
-                        <strong>Judul pemohon:</strong> {{ $item->judul_pemohon }}
-                    </p>
-                </div>
-                <button class="btn btn-primary badge-button toggle-detail">Lihat Detail</button>
+        @php
+            $checkPermohonan = $permohonan->filter(function ($item) {
+                return $item->kategori === 'Layanan';
+            });
+        @endphp
+
+        @if($checkPermohonan->isEmpty())
+            <div class="d-flex flex-column align-items-center justify-content-center"
+                style="height: 200px; background-color: #fff3cd; border: 1px solid #856404; border-radius: 10px;">
+                <span style="font-size: 50px;">📭</span>
+                <p style="margin: 0; font-weight: bold; font-size: 18px; text-align: center;">Tidak ada Hasil
+                    Permohonan Layanan</p>
             </div>
-            <!-- Container Detail -->
-            <div class="detail-container" style="display: none;">
-                <div class="detail-content">
-                    <p><strong>Deskripsi:</strong> {{ $item->deskripsi }}</p>
-                    <p><strong>Jawaban:</strong></p>
-                    <a href="{{ asset('storage/' . $item->jawaban) }}" target="_blank" class="btn btn-info">Download
-                        Dokumen</a>
+        @else
+            @foreach($permohonan as $item)
+                <div class="custom-container {{ $item->sudah_dibaca ? 'dibaca' : '' }}" data-id="{{ $item->id }}"
+                    data-status="{{ $item->status }}">
+                    <div class="info">
+                        <p>
+                            <strong>Nama:</strong> {{ $item->m_user->nama }} |
+                            <strong>Nomor Handphone:</strong> {{ $item->m_user->no_hp }} |
+                            <strong>Email:</strong> {{ $item->m_user->email }}
+                        </p>
+                        <p class="pemohon-info">
+                            <strong>Status pemohon:</strong> {{ $item->status_pemohon }} <br>
+                            <strong>Judul pemohon:</strong> {{ $item->judul_pemohon }}
+                        </p>
+                    </div>
+                    <button class="btn btn-primary badge-button toggle-detail">Lihat Detail</button>
                 </div>
-            </div>
-        @endforeach
+                <!-- Container Detail -->
+                <div class="detail-container" style="display: none;">
+                    <div class="detail-content">
+                        <p><strong>Deskripsi:</strong> {{ $item->deskripsi }}</p>
+                        <p><strong>Jawaban:</strong></p>
+                        <a href="{{ asset('storage/' . $item->jawaban) }}" target="_blank" class="btn btn-info">Download
+                            Dokumen</a>
+                    </div>
+                    @if(!$item->sudah_dibaca)
+                        <button class="btn btn-secondary btn-sm tandai-dibaca" data-id="{{ $item->permohonan_lanjut_id }}"
+                            style="position: absolute; bottom: 10px; right: 10px;">
+                            Tandai telah Dibaca
+                        </button>
+                    @endif
+                </div>
+            @endforeach
+        @endif
     </div>
 </div>
 
 <script>
+    // Tandai Telah Dibaca
+    document.querySelectorAll('.tandai-dibaca').forEach(button => {
+        button.addEventListener('click', function () {
+            const id = this.dataset.id;
+
+            // Menampilkan popup SweetAlert2 untuk konfirmasi
+            Swal.fire({
+                title: 'Apakah Anda yakin?',
+                text: "Anda akan menandai hasil pengajuan permohonan ini sebagai telah dibaca.",
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Ya, Tandai!',
+                cancelButtonText: 'Batal'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    // Jika user mengkonfirmasi, lakukan aksi "tandai telah dibaca"
+                    fetch(`{{ url('hasilPermohonan/tandai-dibaca') }}/${id}`, {
+                        method: 'POST',
+                        headers: {
+                            'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                            'Content-Type': 'application/json',
+                        }
+                    }).then(response => response.json())
+                        .then(data => {
+                            if (data.success) {
+                                Swal.fire({
+                                    title: 'Berhasil!',
+                                    text: data.message,
+                                    icon: 'success',
+                                    confirmButtonText: 'OK',
+                                    allowOutsideClick: false, // Mencegah menutup modal dengan klik luar
+                                }).then(() => {
+                                    location.reload(); // Reload setelah pengguna menekan OK
+                                });
+                            }
+                        }).catch(error => {
+                            console.error('Error:', error);
+                            Swal.fire(
+                                'Terjadi kesalahan!',
+                                'Tidak dapat menandai notifikasi.',
+                                'error'
+                            );
+                        });
+                }
+            });
+        });
+    });
+
     document.querySelectorAll('.toggle-detail').forEach(button => {
         button.addEventListener('click', function () {
             const detailContainer = this.closest('.custom-container').nextElementSibling;
@@ -55,7 +127,7 @@
 
 <style>
     .custom-container {
-        background-color: lightgreen;
+        background-color: lightblue;
         border-radius: 10px;
         padding: 15px;
         box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
@@ -65,6 +137,10 @@
         justify-content: space-between;
         align-items: center;
         margin-bottom: 10px;
+    }
+
+    .custom-container.dibaca {
+        background-color: lightgreen;
     }
 
     .info {
@@ -106,6 +182,10 @@
         margin: 0;
         font-size: 14px;
         font-family: Arial, sans-serif;
+    }
+
+    ol {
+        padding-left: 20px;
     }
 </style>
 

@@ -16,13 +16,14 @@ $totalNotifikasiVFRDaftarPermohonan = PermohonanModel::where('status', 'Diproses
 $totalNotifikasiVFRDaftarPertanyaan = PertanyaanModel::where('status', 'Diproses')->count();
 $totalNotifikasiMPUDaftarPermohonan = PermohonanLanjutModel::where('status', 'Diproses')->count();
 $totalNotifikasiMPUDaftarPertanyaan = PertanyaanLanjutModel::where('status', 'Diproses')->count();
-// Perbaiki bagian notifikasi RPN dengan menambahkan Auth::check()
 $totalNotifikasiRPNDaftarPermohonan = Auth::check() ? PermohonanLanjutModel::where('status', 'Disetujui')
     ->where('user_id', Auth::id())
+    ->whereNull('sudah_dibaca')
     ->count() : 0;
 
 $totalNotifikasiRPNDaftarPertanyaan = Auth::check() ? PertanyaanLanjutModel::where('status', 'Disetujui')
     ->where('user_id', Auth::id())
+    ->whereNull('sudah_dibaca')
     ->count() : 0;
 ?>
 

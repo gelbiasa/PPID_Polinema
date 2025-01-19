@@ -11,56 +11,72 @@
         <h3 class="card-title"><strong> Daftar Pertanyaan Akademik </strong></h3>
     </div>
     <div class="card-body">
-        @foreach($pertanyaan as $item)
-            <div class="custom-container" data-id="{{ $item->id }}" data-status="{{ $item->status }}" style="
-                            @if($item->status === 'Disetujui') background-color: lightgreen;
-                            @elseif($item->status === 'Ditolak') background-color: lightpink;
-                                @else background-color: lightblue; 
-                            @endif">
+        @php
+            $checkPertanyaan = $pertanyaan->filter(function ($item) {
+                return $item->kategori === 'Akademik';
+            });
+        @endphp
 
-                <div class="info">
-                    <p>
-                        <strong>Nama:</strong> {{ $item->m_user->nama }} |
-                        <strong>Nomor Handphone:</strong> {{ $item->m_user->no_hp }} |
-                        <strong>Email:</strong> {{ $item->m_user->email }}
-                    </p>
-                    <p class="pemohon-info">
-                        <strong>Status pemohon:</strong> {{ $item->status_pemohon }} <br>
-                    </p>
-                </div>
-                <button class="btn btn-primary badge-button toggle-detail">Lihat Detail</button>
+        @if($checkPertanyaan->isEmpty())
+            <div class="d-flex flex-column align-items-center justify-content-center"
+                style="height: 200px; background-color: #fff3cd; border: 1px solid #856404; border-radius: 10px;">
+                <span style="font-size: 50px;">📭</span>
+                <p style="margin: 0; font-weight: bold; font-size: 18px; text-align: center;">Tidak ada Pengajuan
+                    Pertanyaan Akademik</p>
             </div>
-            <!-- Container Detail -->
-            <div class="detail-container" style="display: none;">
-                <div class="detail-content">
-                    <div>
-                        <strong>Pertanyaan:</strong>
-                        <ul>
-                            @foreach ($item->t_pertanyaan_detail_lanjut as $detail)
-                                <li>
-                                    <p>{{ $detail->pertanyaan }}</p>
-                                    <textarea class="form-control jawaban-box" rows="2"
-                                        data-id="{{ $detail->detail_pertanyaan_lanjut_id }}">{{ $detail->jawaban }}</textarea>
-                                </li>
-                            @endforeach
-                        </ul>
-                    </div>
-                    <div class="action-buttons">
-                        @if($item->status === 'Diproses')
-                            <button class="btn btn-success btn-setujui setujui-pertanyaan"
-                                data-id="{{ $item->pertanyaan_lanjut_id }}"
-                                data-nama="{{ $item->m_user->nama }}">Setujui</button>
-                        @endif
-                        <button class="btn btn-danger btn-hapus hapus-pertanyaan"
-                            data-id="{{ $item->pertanyaan_lanjut_id }}" data-nama="{{ $item->m_user->nama }}"
-                            data-status="{{ $item->status }}">
-                            Hapus
-                        </button>
-                    </div>
-                </div>
-            </div>
-        @endforeach
+        @else
+            @foreach($pertanyaan as $item)
+                <div class="custom-container" data-id="{{ $item->id }}" data-status="{{ $item->status }}" style="
+                                            @if($item->status === 'Disetujui') background-color: lightgreen;
+                                            @elseif($item->status === 'Ditolak') background-color: lightpink;
+                                                @else background-color: lightblue; 
+                                            @endif">
 
+                    <div class="info">
+                        <p>
+                            <strong>Nama:</strong> {{ $item->m_user->nama }} |
+                            <strong>Nomor Handphone:</strong> {{ $item->m_user->no_hp }} |
+                            <strong>Email:</strong> {{ $item->m_user->email }}
+                        </p>
+                        <p class="pemohon-info">
+                            <strong>Status pemohon:</strong> {{ $item->status_pemohon }} <br>
+                        </p>
+                    </div>
+                    <button class="btn btn-primary badge-button toggle-detail">Lihat Detail</button>
+                </div>
+                <!-- Container Detail -->
+                <div class="detail-container" style="display: none;">
+                    <div class="detail-content">
+                        <div>
+                            <strong>Pertanyaan:</strong>
+                            <ul>
+                                @foreach ($item->t_pertanyaan_detail_lanjut as $detail)
+                                    <li>
+                                        <p>{{ $detail->pertanyaan }}</p>
+                                        <textarea class="form-control jawaban-box" rows="2"
+                                            data-id="{{ $detail->detail_pertanyaan_lanjut_id }}">{{ $detail->jawaban }}</textarea>
+                                    </li>
+                                @endforeach
+                            </ul>
+                        </div>
+                        <div class="action-buttons">
+                            @if($item->status === 'Diproses')
+                                <button class="btn btn-warning btn-tolak tolak-pertanyaan"
+                                    data-id="{{ $item->pertanyaan_lanjut_id }}" data-nama="{{ $item->m_user->nama }}">Tolak</button>
+                                <button class="btn btn-success btn-setujui setujui-pertanyaan"
+                                    data-id="{{ $item->pertanyaan_lanjut_id }}"
+                                    data-nama="{{ $item->m_user->nama }}">Setujui</button>
+                            @endif
+                            <button class="btn btn-danger btn-hapus hapus-pertanyaan"
+                                data-id="{{ $item->pertanyaan_lanjut_id }}" data-nama="{{ $item->m_user->nama }}"
+                                data-status="{{ $item->status }}">
+                                Hapus
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            @endforeach
+        @endif
     </div>
 </div>
 

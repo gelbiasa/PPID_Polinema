@@ -134,7 +134,7 @@ class DaftarPertanyaanController extends Controller
                 'kategori' => 'pertanyaan',
                 'permohonan_lanjut_id' => null,
                 'pertanyaan_lanjut_id' => $pertanyaanLanjut->pertanyaan_lanjut_id,
-                'pesan' => $pertanyaan->m_user->nama . ' Menyetujui Pertanyaan ' . $pertanyaan->kategori,
+                'pesan' => $pertanyaan->m_user->nama . ' Mengajukan Pertanyaan ' . $pertanyaan->kategori,
                 'sudah_dibaca' => null,
                 'created_at' => now(),
                 'updated_at' => now()
@@ -262,7 +262,7 @@ class DaftarPertanyaanController extends Controller
                 'kategori' => 'pertanyaan',
                 'permohonan_lanjut_id' => null,
                 'pertanyaan_lanjut_id' => $pertanyaanLanjut->pertanyaan_lanjut_id,
-                'pesan' => $pertanyaan->m_user->nama . ' Menyetujui Pertanyaan ' . $pertanyaan->kategori,
+                'pesan' => $pertanyaan->m_user->nama . ' Mengajukan Pertanyaan ' . $pertanyaan->kategori,
                 'sudah_dibaca' => null,
                 'created_at' => now(),
                 'updated_at' => now()
@@ -389,7 +389,7 @@ class DaftarPertanyaanController extends Controller
                 'kategori' => 'pertanyaan',
                 'permohonan_lanjut_id' => null,
                 'pertanyaan_lanjut_id' => $pertanyaanLanjut->pertanyaan_lanjut_id,
-                'pesan' => $pertanyaan->m_user->nama . ' Menyetujui Pertanyaan ' . $pertanyaan->kategori,
+                'pesan' => $pertanyaan->m_user->nama . ' Mengajukan Pertanyaan ' . $pertanyaan->kategori,
                 'sudah_dibaca' => null,
                 'created_at' => now(),
                 'updated_at' => now()
