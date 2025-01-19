@@ -1,6 +1,14 @@
 @extends('layouts.template')
 
 @section('content')
+<!-- Loading Spinner Popup -->
+<div id="loadingSpinner" style="display: none;" class="loading-overlay">
+    <div class="loading-popup">
+        <h4 class="loading-title">Mengirim email...</h4>
+        <div class="spinner"></div>
+        <p class="loading-text">Mohon tunggu sebentar</p>
+    </div>
+</div>
 
 <div class="card">
     <div class="card-header d-flex align-items-center justify-content-between">
@@ -28,10 +36,10 @@
         @else
             @foreach($permohonan as $item)
                 <div class="custom-container" data-id="{{ $item->id }}" data-status="{{ $item->status }}" style="
-                                    @if($item->status === 'Disetujui') background-color: lightgreen;
-                                    @elseif($item->status === 'Ditolak') background-color: lightpink;
-                                        @else background-color: lightblue; 
-                                    @endif">
+                                                            @if($item->status === 'Disetujui') background-color: lightgreen;
+                                                            @elseif($item->status === 'Ditolak') background-color: lightpink;
+                                                                @else background-color: lightblue; 
+                                                            @endif">
 
                     <div class="info">
                         <p>
@@ -64,7 +72,6 @@
                                 data-nama="{{ $item->m_user->nama }}" data-status="{{ $item->status }}">
                                 Hapus
                             </button>
-
                         </div>
                     </div>
                 </div>
@@ -192,6 +199,11 @@
         });
     });
 
+    function toggleLoadingSpinner(show) {
+        document.getElementById('loadingSpinner').style.display = show ? 'flex' : 'none';
+    }
+
+    // Modifikasi event listener untuk tombol tolak
     document.querySelectorAll('.tolak-permohonan').forEach(button => {
         button.addEventListener('click', function () {
             const id = this.dataset.id;
@@ -200,11 +212,11 @@
             Swal.fire({
                 title: 'Pilih alasan penolakan penyetujuan ini?',
                 html: `
-                <label><input type="radio" name="reason" value="Data tidak Valid"> Data tidak Valid</label><br>
-                <label><input type="radio" name="reason" value="Data tidak Relevan"> Data tidak Relevan</label><br>
-                <label><input type="radio" name="reason" value="Lainnya"> Lainnya</label><br>
-                <textarea id="otherReason" placeholder="Masukkan alasan lain..." style="display:none; width:100%; margin-top:10px;"></textarea>
-            `,
+                    <label><input type="radio" name="reason" value="Data tidak Valid"> Data tidak Valid</label><br>
+                    <label><input type="radio" name="reason" value="Data tidak Relevan"> Data tidak Relevan</label><br>
+                    <label><input type="radio" name="reason" value="Lainnya"> Lainnya</label><br>
+                    <textarea id="otherReason" placeholder="Masukkan alasan lain..." style="display:none; width:100%; margin-top:10px;"></textarea>
+                `,
                 showCancelButton: true,
                 confirmButtonText: 'Ya',
                 cancelButtonText: 'Batal',
@@ -220,6 +232,9 @@
                 }
             }).then((result) => {
                 if (result.isConfirmed) {
+                    // Tampilkan loading spinner sebelum memulai request
+                    toggleLoadingSpinner(true);
+
                     fetch(`{{ url('daftarPermohonan/akademik/tolak') }}/${id}`, {
                         method: 'POST',
                         headers: {
@@ -229,6 +244,9 @@
                         body: JSON.stringify({ reason: result.value })
                     }).then(response => response.json())
                         .then(data => {
+                            // Sembunyikan loading spinner
+                            toggleLoadingSpinner(false);
+
                             if (data.success) {
                                 Swal.fire({
                                     title: 'Berhasil!',
@@ -240,6 +258,9 @@
                                 });
                             }
                         }).catch(error => {
+                            // Sembunyikan loading spinner jika terjadi error
+                            toggleLoadingSpinner(false);
+
                             console.error('Error:', error);
                             Swal.fire({
                                 title: 'Terjadi kesalahan!',
@@ -251,14 +272,11 @@
                 }
             });
 
+            // Event listener untuk radio button
             document.querySelectorAll('input[name="reason"]').forEach(radio => {
                 radio.addEventListener('change', function () {
                     const otherReasonInput = document.getElementById('otherReason');
-                    if (this.value === 'Lainnya') {
-                        otherReasonInput.style.display = 'block';
-                    } else {
-                        otherReasonInput.style.display = 'none';
-                    }
+                    otherReasonInput.style.display = this.value === 'Lainnya' ? 'block' : 'none';
                 });
             });
         });
@@ -326,6 +344,61 @@
         justify-content: flex-end;
         gap: 10px;
         margin-top: 10px;
+    }
+
+    /* Overlay background */
+    .loading-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 9999;
+    }
+
+    /* Popup container */
+    .loading-popup {
+        background: white;
+        padding: 30px 50px;
+        border-radius: 8px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        text-align: center;
+        min-width: 300px;
+    }
+
+    /* Loading title */
+    .loading-title {
+        margin: 0 0 20px 0;
+        color: #333;
+        font-size: 18px;
+        font-weight: 600;
+    }
+
+    /* Loading text */
+    .loading-text {
+        margin: 20px 0 0 0;
+        color: #666;
+        font-size: 14px;
+    }
+
+    /* Spinner animation */
+    .spinner {
+        width: 40px;
+        height: 40px;
+        border: 4px solid #f3f3f3;
+        border-top: 4px solid #3498db;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+        margin: 0 auto;
+    }
+
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
     }
 </style>
 
